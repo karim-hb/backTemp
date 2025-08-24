@@ -252,27 +252,6 @@ namespace Narije.Api.Controllers.Admin.Reserve
         }
 
         /// <summary>
-        /// خروجی رسیپت بر اساس تاریخ و شعبه
-        /// </summary>
-        [HttpGet]
-        [Route("ExportRecipt")]
-        [MapToApiVersion("2")]
-        [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> ExportRecipt( int customerId, DateTime date)
-        {
-            try
-            {
-                var fileResult = await _IReserveRepository.ExportRecipt(customerId: customerId, date: date);
-                return fileResult;
-            }
-            catch (Exception Ex)
-            {
-                return BadRequest(new ApiErrorResponse(_Code: StatusCodes.Status400BadRequest, _Message: Ex.Message));
-            }
-        }
-        /// <summary>
         /// فهرست همه
         /// </summary>
         [HttpGet]
