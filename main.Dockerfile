@@ -22,6 +22,26 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 
+# Install LibreOffice (headless) and common fonts for proper Persian rendering
+RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+       libreoffice \
+       fonts-dejavu \
+       fonts-dejavu-core \
+       fonts-dejavu-extra \
+       fonts-liberation \
+       fonts-noto \
+       fonts-noto-cjk \
+       fonts-noto-mono \
+       fonts-noto-color-emoji \
+       fonts-noto-unhinted \
+       fonts-noto-ui-core \
+       fonts-noto-ui-extra \
+       fonts-noto-extra \
+       fonts-freefont-ttf \
+       ttf-mscorefonts-installer || true \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN ln -s /data/ /app/images
 
 ENTRYPOINT ["dotnet", "Narije.Api.dll"]
