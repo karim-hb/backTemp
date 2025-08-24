@@ -4,6 +4,12 @@ WORKDIR /app
 USER root
 EXPOSE 80
 
+# Install LibreOffice for Excel to PDF conversion
+RUN apt-get update && \
+    apt-get install -y libreoffice-calc fonts-liberation && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
