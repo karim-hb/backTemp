@@ -1,0 +1,28 @@
+using System;
+
+namespace Narije.Core.DTOs.ViewModels.Setting
+{
+    public class SettingResponse
+    {
+        public Int32 id { get; set; }
+        public String companyName { get; set; }
+        public String economicCode { get; set; }
+        public String regNumber { get; set; }
+        public String postalCode { get; set; }
+        public String address { get; set; }
+        public String tel { get; set; }
+        public String nationalId { get; set; }
+        public Int32? companyGalleryId { get; set; }
+        public Int32? companyDarkGalleryId { get; set; }
+        public Int32? provinceId { get; set; }
+        public Int32? cityId { get; set; }
+        public String contactMobile { get; set; }
+        public String city { get; set; }
+        public String province { get; set; }
+        public TimeSpan? surveyTime { get; set; }
+        public bool forceSurvey { get; set; }
+        public bool? panelMaintenanceMode { get; set; }
+        public bool? frontMaintenanceMode { get; set; }
+    }
+}
+

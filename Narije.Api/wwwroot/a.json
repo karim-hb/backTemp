@@ -1,0 +1,1003 @@
+[
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/UserLevel@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/QuestionCategory@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/Question@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/Question@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/Question@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/Question@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/Rate@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/Point@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/Point@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/Point@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/Questionnaire@getAssignedUsers",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/Questionnaire@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/Questionnaire@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/Questionnaire@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/Questionnaire@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/Questionnaire@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/QuestionnaireAssignment@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/QuestionnaireAssignment@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionnaireMenu/QuestionnaireReport@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionGroupMenu/QuestionCategory@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionGroupMenu/QuestionCategory@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionGroupMenu/QuestionCategory@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionGroupMenu/QuestionCategory@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionGroupMenu/QuestionCategory@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionAssignMenu/Questionnaire@setPositions",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionAssignMenu/Questionnaire@setUsers",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionAssignMenu/Questionnaire@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionAssignMenu/Questionnaire@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionAssignMenu/Position@index",
+    "UrlMap": "/v1/positions",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/QuestionMenu/QuestionAssignMenu/User@index",
+    "UrlMap": "/v1/users",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/EvaluationReportMenu/Period@getQuestionnaires",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/EvaluationReportMenu/Period@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/EvaluationReportMenu/Questionnaire@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/EvaluationReportMenu/Report360@answer-report",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/EvaluationReportMenu/Report360@assign",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/EvaluationReportMenu/Report360@workbook",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/EvaluationReportMenu/Report360@workbook_list",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/EvaluationReportMenu/Report360@workbook_questionnaire_list",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/EvaluationReportMenu/Report360@360",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/EvaluationReportMenu/Position@index",
+    "UrlMap": "/v1/positions",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/PeriodMenu/Period@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/PeriodMenu/Period@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/PeriodMenu/Period@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/PeriodMenu/Period@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/PeriodMenu/Period@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/PeriodMenu/Questionnaire@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/EvaluateMenu/Rate@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/EvaluateMenu/Position@index",
+    "UrlMap": "/v1/positions",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/SettingMenu/ContactsMenu/EvaluationContact@contacts",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/SettingMenu/ContactsMenu/EvaluationContact@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/SettingMenu/ContactsMenu/Position@index",
+    "UrlMap": "/v1/positions",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/SettingMenu/ContactsMenu/User@index",
+    "UrlMap": "/v1/users",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/SettingMenu/360PatternMenu/User360@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/SettingMenu/360PatternMenu/User360@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "360EvaluationMenu/SettingMenu/360PatternMenu/Position@index",
+    "UrlMap": "/v1/positions",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/SelfServiceMenu/SelfService@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/SelfServiceMenu/SelfService@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/SelfServiceMenu/SelfService@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/SelfServiceMenu/SelfService@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/SelfServiceMenu/SelfService@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FoodProgramMenu/SelfService@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FoodProgramMenu/Meal@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FoodProgramMenu/Food@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FoodProgramMenu/DateFoodMeal@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FoodProgramMenu/DateFoodMeal@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FoodProgramMenu/DateFoodMeal@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FoodProgramMenu/Calendar@show",
+    "UrlMap": "/v1/ta/calendars",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FeedingConsoleReport/ReportFoodProgramMenu/SelfService@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FeedingConsoleReport/ReportFoodProgramMenu/Meal@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FeedingConsoleReport/ReportFoodProgramMenu/ReportFeeding@date_food_meal",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FeedingConsoleReport/ReportGeneralReportMenu/SelfService@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FeedingConsoleReport/ReportGeneralReportMenu/Meal@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FeedingConsoleReport/ReportGeneralReportMenu/ReportFeeding@general",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FeedingConsoleReport/ReportOrderMenu/SelfService@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FeedingConsoleReport/ReportOrderMenu/Meal@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FeedingConsoleReport/ReportOrderMenu/ReportFeeding@reserve_food",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FoodMealMenu/Meal@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FoodMealMenu/Meal@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FoodMealMenu/Meal@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FoodMealMenu/Meal@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FoodMealMenu/Meal@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/PaymentCheckPrint/UserPaymentCheckPrintMenu/Meal@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/PaymentCheckPrint/UserPaymentCheckPrintMenu/Reserve@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/PaymentCheckPrint/UserPaymentCheckPrintMenu/ReportFeeding@print_reserve",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/PaymentCheckPrint/UserPaymentCheckPrintMenu/User@index",
+    "UrlMap": "/v1/users",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FoodMenu/Food@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FoodMenu/Food@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FoodMenu/Food@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FoodMenu/Food@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "FeedingConsoleMenu/FoodMenu/Food@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "PaymentCheckMenu/Payroll@check_file",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/User@setInsurance",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/Insurance@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/Insurance@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/Insurance@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/Contract@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/Contract@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/Contract@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/Contract@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/Phone@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/Phone@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/Phone@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/User@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/User@getDeletedUsers",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/User@restoreDeletedUser",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/FinancialInfo@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/FinancialInfo@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/FinancialInfo@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/FinancialInfo@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/User@index",
+    "UrlMap": "/v1/users",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/Profile@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/User@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/User@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/User@update",
+    "UrlMap": "/v1/users/",
+    "Method": "PUT"},
+  {
+    "PermissionName": "BasicInformationMenu/PersonnelMenu/User@destroy",
+    "UrlMap": "/v1/users/",
+    "Method": "DELETE"},
+  {
+    "PermissionName": "BasicInformationMenu/ChartMenu/Position@index",
+    "UrlMap": "/v1/positions",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/ChartMenu/Position@store",
+    "UrlMap": "/v1/positions",
+    "Method": "POST"},
+  {
+    "PermissionName": "BasicInformationMenu/ChartMenu/Position@show",
+    "UrlMap": "/v1/positions",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/ChartMenu/Position@update",
+    "UrlMap": "/v1/",
+    "Method": "PUT"},
+  {
+    "PermissionName": "BasicInformationMenu/ChartMenu/Position@destroy",
+    "UrlMap": "/v1/positions",
+    "Method": "DELETE"},
+  {
+    "PermissionName": "BasicInformationMenu/Permissions/RolesMenu/AssignPermissionsMenu/Role@index",
+    "UrlMap": "/v1/roles",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/Permissions/RolesMenu/AssignPermissionsMenu/Role@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/Permissions/RolesMenu/AssignPermissionsMenu/RoleUsers@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/Permissions/RolesMenu/AssignPermissionsMenu/User@index",
+    "UrlMap": "/v1/users",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/Permissions/RolesMenu/PermissionsDefinitionMenu/Role@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/Permissions/RolesMenu/PermissionsDefinitionMenu/Role@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/Permissions/RolesMenu/PermissionsDefinitionMenu/Role@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/Permissions/RolesMenu/PermissionsDefinitionMenu/Role@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/Permissions/RolesMenu/PermissionsDefinitionMenu/Role@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/Permissions/RolesMenu/PermissionsDefinitionMenu/RolePermissions@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/Permissions/RolesMenu/PermissionsDefinitionMenu/RoleUsers@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "BasicInformationMenu/Permissions/RolesMenu/PermissionsDefinitionMenu/User@index",
+    "UrlMap": "/v1/users",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ReportsMenu/Position@index",
+    "UrlMap": "/v1/positions",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ReportsMenu/Rule@getByCompanyCode",
+    "UrlMap": "/v1/company/rules",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ReportsMenu/ReportBuilder@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ReportsMenu/ReportBuilder@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ReportsMenu/ReportBuilder@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ReportsMenu/ReportBuilder@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ReportsMenu/ReportBuilder@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ReportsMenu/ReportBuilder@takeReport",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ReportsMenu/Report@report",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ReportsMenu/ReportBuilder@process",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ShiftMenu/ShiftAssignMenu/Position@index",
+    "UrlMap": "/v1/positions",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ShiftMenu/ShiftAssignMenu/Shift@assignShift",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ShiftMenu/ShiftDefineMenu/SettingPack@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ShiftMenu/ShiftDefineMenu/Shift@index",
+    "UrlMap": "/v1/ta/shifts",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ShiftMenu/ShiftDefineMenu/Shift@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ShiftMenu/ShiftDefineMenu/Shift@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ShiftMenu/ShiftDefineMenu/Shift@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ShiftMenu/ShiftDefineMenu/WorkingHour@index",
+    "UrlMap": "/v1/ta/working_hours",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ShiftMenu/ShiftDefineMenu/Calendar@show",
+    "UrlMap": "/v1/ta/calendars",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ShiftMenu/UserShiftMenu/User@index",
+    "UrlMap": "/v1/users",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ShiftMenu/UserShiftMenu/Shift@getUserShifts",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ShiftMenu/UserShiftMenu/Shift@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/RemainingLeaveMenu/DefineRemainingLeaveMenu/Position@index",
+    "UrlMap": "/v1/positions",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/RemainingLeaveMenu/DefineRemainingLeaveMenu/Leave@defineUserLeave",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/RemainingLeaveMenu/GeneralLeaveTransferMenu/Position@index",
+    "UrlMap": "/v1/positions",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/RemainingLeaveMenu/GeneralLeaveTransferMenu/Leave@generalTransferLeave",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/RemainingLeaveMenu/RemainingLeaveReportMenu/User@index",
+    "UrlMap": "/v1/users",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/RemainingLeaveMenu/RemainingLeaveReportMenu/Leave@remainingLeaveReport",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/RemainingLeaveMenu/UserLeaveTransferMenu/User@index",
+    "UrlMap": "/v1/users",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/RemainingLeaveMenu/UserLeaveTransferMenu/Leave@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/RemainingLeaveMenu/UserLeaveTransferMenu/Leave@getUserLeavesInformation",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/RemainingLeaveMenu/UserLeaveTransferMenu/Leave@userTransferLeave",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/RemainingLeaveMenu/UserLeaveTransferMenu/Leave@userBRLeave",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/RemainingLeaveMenu/UserLeaveTransferMenu/Leave@unlock",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/Settings/SettingDefinitionMenu/SettingPack@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/Settings/SettingDefinitionMenu/SettingPack@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/Settings/SettingDefinitionMenu/SettingPack@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/Settings/SettingDefinitionMenu/SettingPack@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/Settings/SettingDefinitionMenu/SettingPack@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/Settings/SettingDefinitionMenu/Setting@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/Settings/SettingDefinitionMenu/Setting@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/Settings/SettingDefinitionMenu/Setting@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WritMenu/User@index",
+    "UrlMap": "/v1/users",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WritMenu/Writ@approve",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WritMenu/Writ@index",
+    "UrlMap": "/v1/ta/writs",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WritMenu/Writ@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WritMenu/Writ@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WritMenu/Writ@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WritMenu/Writ@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ClockingMenu/User@index",
+    "UrlMap": "/v1/users",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ClockingMenu/Clocking@restore",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ClockingMenu/Clocking@approve",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ClockingMenu/Clocking@approveWithFilters",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ClockingMenu/Clocking@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ClockingMenu/Clocking@index",
+    "UrlMap": "/v1/ta/clockings",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ClockingMenu/Clocking@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ClockingMenu/Clocking@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ClockingMenu/Clocking@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/ClockingMenu/Clocking@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WorkingHourMenu/WorkingHour@getFactors",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WorkingHourMenu/Factor@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WorkingHourMenu/Factor@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WorkingHourMenu/Factor@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WorkingHourMenu/Factor@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WorkingHourMenu/WorkingHour@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WorkingHourMenu/WorkingHour@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WorkingHourMenu/WorkingHour@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WorkingHourMenu/WorkingHour@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WorkingHourMenu/WorkingHour@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/CalendarMenu/Calendar@show",
+    "UrlMap": "/v1/ta/calendars",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/CalendarMenu/Calendar@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/RequestPattern/PatternAssignmentMenu/Position@index",
+    "UrlMap": "/v1/positions",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/RequestPattern/PatternAssignmentMenu/User@index",
+    "UrlMap": "/v1/users",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/RequestPattern/PatternAssignmentMenu/RequestRulePack@setPositions",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/RequestPattern/PatternAssignmentMenu/RequestRulePack@setUsers",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/RequestPattern/PatternAssignmentMenu/RequestRulePack@index",
+    "UrlMap": "/v1/requests/rules/packs",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/RequestPattern/PatternDefinitionMenu/RequestRulePack@index",
+    "UrlMap": "/v1/requests/rules/packs",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/RequestPattern/PatternDefinitionMenu/RequestRulePack@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/RequestPattern/PatternDefinitionMenu/RequestRulePack@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/RequestPattern/PatternDefinitionMenu/RequestRulePack@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/RequestPattern/PatternDefinitionMenu/RequestRulePack@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/RequestPattern/PatternDefinitionMenu/RequestRulePackRule@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/RequestPattern/PatternDefinitionMenu/RequestRulePackRule@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/RequestPattern/PatternDefinitionMenu/RequestRulePackRule@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/RequestPattern/PatternDefinitionMenu/RequestRulePackRule@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/RequestDashboardMenu/Dashboard@getDefault",
+    "UrlMap": "/v1/extensions/default",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/Box/ReceivedMenu/ReceivedRequest@getCurrentUserReceivedRequests",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/Box/ReceivedMenu/Request@approve",
+    "UrlMap": "/v1/",
+    "Method": "PUT"},
+  {
+    "PermissionName": "RequestsMenu/Box/ReceivedMenu/Request@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/Box/SentMenu/Request@getCurrentUserPostedRequests",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/Box/SentMenu/Request@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/Box/SentMenu/Request@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/Box/SentMenu/Request@update",
+    "UrlMap": "/v1/requests",
+    "Method": "PUT"},
+  {
+    "PermissionName": "RequestsMenu/Box/SentMenu/Request@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/Box/SentMenu/WorkingHour@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/Box/DraftMenu/RequestDraft@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/Box/DraftMenu/RequestDraft@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/Box/DraftMenu/RequestDraft@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/Box/DraftMenu/RequestDraft@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/WorkflowMenu/RequestWorkflow@index",
+    "UrlMap": "/v1/requests/workflows",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/WorkflowMenu/RequestWorkflow@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/WorkflowMenu/RequestWorkflow@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/WorkflowMenu/RequestWorkflow@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "RequestsMenu/WorkflowMenu/RequestWorkflow@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "SystemHistoryMenu/Log@index",
+    "UrlMap": "/v1/log",
+    "Method": "GET"},
+  {
+    "PermissionName": "PortalMenu/ContentMenu/Post@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "PortalMenu/ContentMenu/Post@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "PortalMenu/ContentMenu/Post@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "PortalMenu/ContentMenu/Post@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "PortalMenu/ContentMenu/Post@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "PortalMenu/CategoriesMenuPost/PostCategory@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "PortalMenu/CategoriesMenuPost/PostCategory@store",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "PortalMenu/CategoriesMenuPost/PostCategory@show",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "PortalMenu/CategoriesMenuPost/PostCategory@update",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "PortalMenu/CategoriesMenuPost/PostCategory@destroy",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "DashboardMenu/Post@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"},
+  {
+    "PermissionName": "DashboardMenu/Dashboard@getDefault",
+    "UrlMap": "/v1/extensions/default",
+    "Method": "GET"},
+  {
+    "PermissionName": "TimeAttendanceMenu/WorkingHourMenu/Factor@index",
+    "UrlMap": "/v1/",
+    "Method": "GET"
+  }
+]

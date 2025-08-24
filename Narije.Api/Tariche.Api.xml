@@ -1,0 +1,1382 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Narije.Api</name>
+    </assembly>
+    <members>
+        <member name="T:Narije.Api.Controllers.AdminController">
+            <summary>
+            Home
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.#ctor(Narije.Infrastructure.Contexts.NarijeDBContext,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration,System.Net.Http.IHttpClientFactory,Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            متد سازنده
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.UsersCount">
+            <summary>
+            شمارش کاربران
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Users(System.Nullable{System.Int32},System.Nullable{System.Int32},System.String,System.String)">
+            <summary>
+            لیست کاربران
+            مرتب سازی
+            1 آی دی
+            2 نام
+            3 نام خانوادگی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.User(System.Int32)">
+            <summary>
+            اطلاعات کاربر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditUser(Narije.Core.DTOs.Admin.AdminUserRequest)">
+            <summary>
+            ویرایش کاربران
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteUser(System.Int32)">
+            <summary>
+            حذف کاربر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ChangeUserPassword(System.Int32,System.String)">
+            <summary>
+            تغییر رمز کاربر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.BrandsCount">
+            <summary>
+            شمارش برندها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Brands(System.Nullable{System.Int32},System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            لیست برندها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditBrand(Narije.Core.DTOs.Admin.BrandRequest)">
+            <summary>
+            ویرایش برند
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddBrand(Narije.Core.DTOs.Admin.BrandRequest)">
+            <summary>
+            افزودن برند
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteBrand(System.Int32)">
+            <summary>
+            حذف برند
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.CrossCells(System.Int32)">
+            <summary>
+            لیست لوازم جانبی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteCrossCell(System.Int32,System.Int32)">
+            <summary>
+            حذف لوازم جانبی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddCrossCell(System.Int32,System.Int32)">
+            <summary>
+            افزودن لوازم جانبی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.CategoryAbilitiesCount">
+            <summary>
+            شمارش اینفو گروه ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.CategoryAbilities(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            لیست اینفو گروه ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteCategoryAbilities(System.Int32)">
+            <summary>
+            حذف اینفو گروه ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddCategoryAbilities(Narije.Core.DTOs.Admin.CategoryAbilityRequest)">
+            <summary>
+            افزودن اینفو گروه ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditCategoryAbilities(Narije.Core.DTOs.Admin.CategoryAbilityRequest)">
+            <summary>
+            ویرایش اینفو گروه ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.PublicAttributesCount">
+            <summary>
+            شمارش ویژگی های عمومی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.PublicAttributes(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            لیست ویژگی های عمومی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeletePublicAttributes(System.Int32)">
+            <summary>
+            حذف ویژگی عمومی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddPublicAttribute(Narije.Core.DTOs.Admin.PublicAttributeRequest)">
+            <summary>
+            افزودن ویژگی عمومی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditPublicAttribute(Narije.Core.DTOs.Admin.PublicAttributeRequest)">
+            <summary>
+            ویرایش ویژگی عمومی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Tags(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            لیست برچسب ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditTag(Narije.Core.DTOs.Admin.TagRequest)">
+            <summary>
+            ویرایش برچسب
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddTag(System.String)">
+            <summary>
+            افزودن برچسب
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteTag(System.Int32)">
+            <summary>
+            حذف برچسب
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.SMSCenter(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            لیست موبایل ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditSMSCenter(Narije.Core.DTOs.Admin.SMSCenterRequest)">
+            <summary>
+            ویرایش موبایل
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddSMSCenter(System.String,System.Int32)">
+            <summary>
+            افزودن موبایل
+            type
+            0 : سفارش در حال بررسی
+            1: خروج از انبار
+            2: لغو شده 
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteSMSCenter(System.Int32)">
+            <summary>
+            حذف موبایل
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.SynonimsCount">
+            <summary>
+            شمارش واژه
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Synonims(System.Nullable{System.Int32},System.Nullable{System.Int32},System.String)">
+            <summary>
+            لیست واژه ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditSynonim(Narije.Core.DTOs.Admin.SynonimRequest)">
+            <summary>
+            ویرایش واژه
+            
+            synonims = "aaaa,bbbb,cccc,dddd"
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddSynonim(System.String,System.String)">
+            <summary>
+            افزودن واژه
+            synonims = "aaaa,bbbb,cccc,dddd"
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteSynonim(System.Int32)">
+            <summary>
+            حذف واژه
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ProductsCount">
+            <summary>
+            شمارش کالاها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Product(System.Int32)">
+            <summary>
+            اطلاعات یک کالا
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Products(System.Nullable{System.Int32},System.Nullable{System.Int32},System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            لیست کالاها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditProduct(Narije.Core.DTOs.Admin.ProductRequest)">
+            <summary>
+            ویرایش کالا
+            attributes = [{"id": 1, "preview": false}]
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddProduct(Narije.Core.DTOs.Admin.AddProductRequest)">
+            <summary>
+            افزودن کالا
+            attributes = [{"id": 1, "preview": false}]
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteProductGallery(System.Int32)">
+            <summary>
+            حذف تصویر محصول
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddToGallery(Narije.Core.DTOs.Admin.AddGalleryRequest)">
+            <summary>
+            افزودن تصویر محصول
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteProduct(System.Int32)">
+            <summary>
+            حذف کالا
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ProductsCardex(System.Nullable{System.Int32},System.Nullable{System.Int32},System.String,System.Nullable{System.DateTime},System.Nullable{System.DateTime})">
+            <summary>
+            کاردکس کالاها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ProductAttributes(System.Int32)">
+            <summary>
+            لیست ویژگی های محصول
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddProductAttribute(Narije.Core.DTOs.Admin.ProductAttributeRequest)">
+            <summary>
+            افزودن ویژگی به محصول
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddProductAttributes(System.Int32,System.String)">
+            <summary>
+            افزودن چند ویژگی به محصول
+            attribs = [{"id": 1, "preview": false}]
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteProductAttribute(System.Int32,System.Int32)">
+            <summary>
+            حذف ویژگی از محصول
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ProductPublicAttributes(System.Int32)">
+            <summary>
+            لیست ویژگی های عمومی محصول
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddProductPublicAttribute(Narije.Core.DTOs.Admin.ProductPublicAttributeRequest)">
+            <summary>
+            افزودن ویژگی عمومی به محصول
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteProductPublicAttribute(System.Int32,System.Int32)">
+            <summary>
+            حذف ویژگی عمومی از محصول
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DisableAllProducts">
+            <summary>
+            غیر فعال کردن کلیه محصولات
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DisableAllProductProperties">
+            <summary>
+            غیر فعال کردن کلیه قیمت ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ProductsPropertires(System.Nullable{System.Int32},System.Nullable{System.Int32},System.String,System.String,System.String,System.String,System.Nullable{System.Boolean},System.Nullable{System.Boolean})">
+            <summary>
+            لیست ویژگی های قیمتی همه محصولات
+            order
+              1 ترتیب حروف الفبا 
+              2 جدیدترین
+              3 قدیمی ترین
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ProductPropertires(System.Int32)">
+            <summary>
+            لیست ویژگی های قیمتی یک محصول
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddEditProductPropertires(Narije.Core.DTOs.Admin.ProductPropertiesRequest)">
+            <summary>
+            قیمت گذاری یک محصول
+            productProperties:
+            [{"productAttributeId": integer, "productAttribute2Id": integer/null, "code": string, "price": integer, "discount": integer, "maxBuy": integer, "minBuy": integer, "qty": integer}]
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ProductEditOnePropertires(Narije.Core.DTOs.Admin.ProductOnePropertyRequest)">
+            <summary>
+            اصلاح یک آیتم قیمتی محصول
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteProductOnePropertires(System.Int32,System.Int32,System.Nullable{System.Int32})">
+            <summary>
+            حذف یک آیتم قیمتی محصول
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.FAQCount">
+            <summary>
+            شمارش سوالات
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.FAQ(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            لیست سوالات
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.FAQ(System.Int32)">
+            <summary>
+            سوالات یک محصول
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteFAQ(System.Int32)">
+            <summary>
+            حذف سوال
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddFAQ(Narije.Core.DTOs.Admin.FAQRequest)">
+            <summary>
+            افزودن سوال
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.CategoriesCount">
+            <summary>
+            شمارش دسته ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Categories(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            لیست دسته ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditCategory(Narije.Core.DTOs.Admin.CategoryRequest)">
+            <summary>
+            ویرایش دسته
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddCategory(Narije.Core.DTOs.Admin.CategoryRequest)">
+            <summary>
+            افزودن دسته
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteCategory(System.Int32)">
+            <summary>
+            حذف دسته
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AttributeGroups(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            لیست گروه های ویژگی ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditAttributeGroup(Narije.Core.DTOs.Admin.AttributeGroupRequest)">
+            <summary>
+            ویرایش گروه ویژگی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddAttributeGroup(Narije.Core.DTOs.Admin.AttributeGroupRequest)">
+            <summary>
+            افزودن گروه ویژگی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteAttributeGroup(System.Int32)">
+            <summary>
+            حذف گروه ویژگی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AttributesCount">
+            <summary>
+            شمارش ویژگی ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Attributes(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            لیست ویژگی ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Attribute(System.Int32)">
+            <summary>
+            یک ویژگی ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditAttribute(Narije.Core.DTOs.Admin.AttributeRequest)">
+            <summary>
+            ویرایش ویژگی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddAttribute(Narije.Core.DTOs.Admin.AttributeRequest)">
+            <summary>
+            افزودن ویژگی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteAttribute(System.Int32)">
+            <summary>
+            حذف ویژگی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddSubAttribute(Narije.Core.DTOs.Admin.SubAttributeRequest)">
+            <summary>
+            افزودن  آیتم به ویژگی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteSubAttribute(System.Int32)">
+            <summary>
+            حذف آیتم ویژگی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditSubAttribute(Narije.Core.DTOs.Admin.SubAttributeRequest)">
+            <summary>
+            ویرایش آیتم ویژگی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ProductScoresCount">
+            <summary>
+            شمارش امتیازها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ProductScores(System.Nullable{System.Int32},System.Nullable{System.Int32},System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            لیست امتیازها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.VerifyProductScore(System.Int32,System.Boolean)">
+            <summary>
+            تایید نظر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ScoreParams(System.Int32)">
+            <summary>
+            پارامترهای امتیاز یک دسته
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddScoreParams(Narije.Core.DTOs.Admin.ScoreParametersRequest)">
+            <summary>
+            افزودن پارامتر امتیاز
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteScoreParams(System.Int32)">
+            <summary>
+            حذف پارامتر امتیاز
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ShowcasesCount">
+            <summary>
+            شمارش ویترین
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Showcases">
+            <summary>
+            لیست ویترین
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditShowcase(Narije.Core.DTOs.Admin.ShowcaseRequest)">
+            <summary>
+            ویرایش ویترین
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddShowcase(Narije.Core.DTOs.Admin.ShowcaseRequest)">
+            <summary>
+            افزودن ویترین
+            انواع فیلترها : new, category, recommend
+            در مورد category مقدار آی دی در فیلد value قرار می گیرد
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteShowcase(System.Int32)">
+            <summary>
+            حذف ویترین
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.SliderCount">
+            <summary>
+            شمارش اسلایدر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Sliders">
+            <summary>
+            لیست اسلایدر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditSlider(Narije.Core.DTOs.Admin.SliderRequest)">
+            <summary>
+            ویرایش اسلایدر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddSlider(Narije.Core.DTOs.Admin.SliderRequest)">
+            <summary>
+            افزودن اسلایدر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteSlider(System.Int32)">
+            <summary>
+            حذف اسلایدر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ShippingSetting">
+            <summary>
+            تنظیمات ارسال
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditSeo(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            تنظیمات ارسال
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Seo">
+            <summary>
+            سئو
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditSeo(System.String)">
+            <summary>
+            ویرایش سئو
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Chart1(System.Nullable{System.Int32},System.Nullable{System.DateTime},System.Nullable{System.DateTime})">
+            <summary>
+             گزارش نمودار
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.OrdersCount">
+            <summary>
+            شمارش سفارشات
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Orders(System.Nullable{System.Int32},System.Nullable{System.Int32},System.Nullable{System.Boolean},System.String,System.String,System.String,System.String,System.Nullable{System.Boolean},System.Nullable{System.Int32},System.String,System.Nullable{System.DateTime},System.Nullable{System.DateTime})">
+            <summary>
+             لیست سفارشات ها
+             ترتیب
+             1 بر اساس تاریخ صعودی
+             2 بر اساس تاریخ نزولی
+             3 بر اساس مبلغ صعودی
+             4 بر اساس مبلغ نزولی
+             5 بر اساس تعداد صعودی
+             6 بر اساس تعداد نزولی
+             7 بر اساس تاریخ تحویل صعودی
+             8 بر اساس تاریخ تحویل نزولی
+             9 بر اساس آی دی صعودی
+             10 بر اساس آی دی نزولی
+             11 بر اساس نام و نام خانوادگی صعودی
+             12 بر اساس نام و نام خانوادگی نزولی
+             13 بر اساس بروزرسانی صعودی
+             14 بر اساس بروزرسانی نزولی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Order(System.Int32)">
+            <summary>
+             جزئیات سفارش 
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ChangeOrderState(System.Int32,System.Int32)">
+            <summary>
+             تغییر وضعیت سفارش 
+             2 در حال بررسی
+             3 در حال ارسال
+             4 خروج از انبار
+             5 تحویل بسته
+             6 لغو شده
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.CompanyInfo">
+            <summary>
+             اطلاعات شرکت
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditCompanyInfo(Narije.Core.DTOs.Admin.CompanyInfoRequest)">
+            <summary>
+            ویرایش اطلاعات شرکت
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Invoices(System.Collections.Generic.List{System.Int32})">
+            <summary>
+             فاکتور
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Export1(System.Collections.Generic.List{System.Int32})">
+            <summary>
+             خروجی شماره 1
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Export2(System.Collections.Generic.List{System.Int32})">
+            <summary>
+             خروجی شماره 2
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Export3(System.Collections.Generic.List{System.Int32})">
+            <summary>
+             خروجی شماره 3
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Export4(System.Collections.Generic.List{System.Int32})">
+            <summary>
+             خروجی شماره 4
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ShippingCompanyCount">
+            <summary>
+            شمارش شرکت های حمل
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ShippingCompanies">
+            <summary>
+            لیست شرکت های حمل
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditShippingCompany(System.Int32,System.String,System.Int32,System.Int32,System.Boolean,System.Int32,System.String,System.Collections.Generic.List{Microsoft.AspNetCore.Http.IFormFile})">
+            <summary>
+            ویرایش شرکت حمل
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddShippingCompany(System.String,System.Int32,System.Int32,System.Boolean,System.Int32,System.String,System.Collections.Generic.List{Microsoft.AspNetCore.Http.IFormFile})">
+            <summary>
+            افزودن شرکت حمل
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteShippingCompany(System.Int32)">
+            <summary>
+            حذف شرکت حمل
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ShippingCosts(System.Int32)">
+            <summary>
+            لیست قیمت یک شرکت
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditShippingCost(System.Int32,System.Int32,System.Int32,System.Boolean)">
+            <summary>
+            ثبت یا ویرایش قیمت حمل
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DiscountCodeCount">
+            <summary>
+            شمارش تخفیف
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DiscountCode(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            لیست تخفیف
+            Type: 
+               0 تخفیف مبلغی
+               1  تخفیف درصدی
+            Target:
+               0 تخفیف روی محصول
+               1 تخفیف روی برند
+            TargetId: آی دی ویژگی محصول یا برند
+            fromDate : تاریخ شروع اعتبار 
+            toDate : تاریخ پایان اعتبار
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteDiscountCode(System.Int32)">
+            <summary>
+            حذف تخفیف
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddDiscountCode(Narije.Core.DTOs.Admin.DiscountCodeRequest)">
+            <summary>
+            افزودن تخفیف
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ChangeDiscountCodeState(System.Int32,System.Boolean)">
+            <summary>
+            تغییر وضعیت تخفیف
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.SiteNotificationCount">
+            <summary>
+            شمارش نوتیفیکیشن
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.SiteNotifications">
+            <summary>
+            لیست نوتیفیکیشن
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddSiteNotification(Narije.Core.DTOs.Admin.SiteNotificationRequest)">
+            <summary>
+            افزودن نوتیفیکیشن
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.SiteNotificationState(System.Int32,System.Boolean)">
+            <summary>
+            تغییر وضعیت نوتیفیکیشن
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditSiteNotificationState(Narije.Core.DTOs.Admin.SiteNotificationRequest)">
+            <summary>
+            ویرایش نوتیفیکیشن
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteSiteNotification(System.Int32)">
+            <summary>
+            حذف نوتیفیکیشن
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Wallet(System.Nullable{System.Int32},System.Nullable{System.Int32},System.String,System.Nullable{System.DateTime},System.Nullable{System.DateTime},System.Nullable{System.Int32})">
+            <summary>
+            کیف پول
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.GalleryCount">
+            <summary>
+            شمارش تصاویر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Gallery(System.Nullable{System.Int32},System.Nullable{System.Int32},System.String,System.String)">
+            <summary>
+            لیست تصاویر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.GalleryUsage(System.Int32)">
+            <summary>
+            محل استفاده تصویر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddGallery(System.Collections.Generic.List{Microsoft.AspNetCore.Http.IFormFile})">
+            <summary>
+            افزودن تصاویر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditGallery(Narije.Core.DTOs.Admin.GalleryRequest)">
+            <summary>
+            ویرایش تصویر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteGallery(System.Int32)">
+            <summary>
+            حذف تصویر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.CleanupGallery">
+            <summary>
+            حذف تصاویر بلااستفاده
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.MenuCount">
+            <summary>
+            شمارش منوها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Menus(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            لیست منوها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditMenu(Narije.Core.DTOs.Admin.MenuRequest)">
+            <summary>
+            ویرایش منو
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddMenu(Narije.Core.DTOs.Admin.MenuRequest)">
+            <summary>
+            افزودن منو
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteMenu(System.Int32)">
+            <summary>
+            حذف منو
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.MenuItemsCount">
+            <summary>
+            شمارش منوها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.MenuItems(System.Int32,System.Nullable{System.Int32})">
+            <summary>
+            لیست آیتم های منو
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditMenuItems(System.String)">
+            <summary>
+            ویرایش آیتم های منو
+            productProperties:
+            [{"id": integer, "title": string, "link": string, "idx": int, "itemType": integer, "itemValue": string, "active": bool, "fromGallery": string}]
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditMenuItem(Narije.Core.DTOs.Admin.MenuItemRequest)">
+            <summary>
+            ویرایش آیتم منو
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddMenuItems(System.String)">
+            <summary>
+            افزودن آیتم های منو
+            [{"id": integer, "title": string, "link": string, "idx": int, "itemType": integer, "itemValue": string, "active": bool, "menuId": int, "parentId": int/null, "fromGallery": string}]
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddMenuItem(Narije.Core.DTOs.Admin.MenuItemRequest)">
+            <summary>
+            افزودن آیتم منو
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteMenuItem(System.Int32)">
+            <summary>
+            حذف آیتم های منو
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.PermissionsCount">
+            <summary>
+            شمارش دسترسی ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.Permissions(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            لیست دسترسی ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.UserPermissions">
+            <summary>
+            دسترسی های کاربر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AccessProfilesCount">
+            <summary>
+            شمارش پروفایل های دسترستی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AccessProfiles(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            لیست پروفایل های دسترستی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.EditAccessProfile(System.Int32,System.String)">
+            <summary>
+            ویرایش پروفایل های دسترستی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddAccessProfile(System.String)">
+            <summary>
+            افزودن پروفایل های دسترستی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.AddAccessProfilePermission(System.Int32,System.Int32)">
+            <summary>
+            افزودن دسترسی به پروفایل دسترستی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteAccessProfilePermission(System.Int32,System.Int32)">
+            <summary>
+            حذف دسترسی از پروفایل دسترستی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.DeleteAccessProfile(System.Int32)">
+            <summary>
+            حذف پروفایل های دسترستی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.ElasticGenerateKeys">
+            <summary>
+            بازنشانی کلید های جستجو
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.AdminController.CrmSendPersons">
+            <summary>
+            لیست کاربران
+            </summary>
+        </member>
+        <member name="T:Narije.Api.Controllers.HomeController">
+            <summary>
+            Home
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.HomeController.#ctor(Narije.Infrastructure.Contexts.NarijeDBContext,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration,System.Net.Http.IHttpClientFactory,Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            متد سازنده
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.HomeController.Index">
+            <summary>
+            Index
+            </summary>
+        </member>
+        <member name="T:Narije.Api.Controllers.LoginController">
+            <summary>
+            Login
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.LoginController.#ctor(Narije.Infrastructure.Contexts.NarijeDBContext,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            متد سازنده
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.LoginController.Logout">
+            <summary>
+            خروج از سیستم
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.LoginController.ForgetPassword(System.String)">
+            <summary>
+            کد فراموشی رمز عبور
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.LoginController.Check(System.String)">
+            <summary>
+            بررسی موبایل
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.LoginController.UserLogin(System.String,System.String)">
+            <summary>
+            اعتبارسنجی کاربر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.LoginController.SendCode(System.String)">
+            <summary>
+            ارسال کد اعتبار سنجی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.LoginController.UserLoginBySMS(System.String,System.String)">
+            <summary>
+            اعتبارسنجی با کد یکتا
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.LoginController.AdminLogin(System.String,System.String)">
+            <summary>
+            اعتبارسنجی ادمین
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.LoginController.GenerateAccessToken(System.Collections.Generic.IEnumerable{System.Security.Claims.Claim})">
+            <summary>
+            ایجاد توکن
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.LoginController.GenerateRefreshToken">
+            <summary>
+            ایجاد توکن
+            </summary>
+        </member>
+        <member name="T:Narije.Api.Controllers.PublicController">
+            <summary>
+            Home
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.PublicController.#ctor(Narije.Infrastructure.Contexts.NarijeDBContext,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration,System.Net.Http.IHttpClientFactory,Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            متد سازنده
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.PublicController.GetStaticsData">
+            <summary>
+            دریافت دیتای استاتیک سایت
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.PublicController.Brands">
+            <summary>
+            لیست برندها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.PublicController.Provinces">
+            <summary>
+            لیست استان ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.PublicController.ScoreParams">
+            <summary>
+            پارامترهای امتیاز دهی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.PublicController.DownloadFile(System.String)">
+            <summary>
+            دریافت فایل 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Narije.Api.Controllers.PublicController.DownloadFileById(System.Int32)">
+            <summary>
+            دریافت فایل 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Narije.Api.Controllers.PublicController.ShippingCosts(System.Int32,System.Int32)">
+            <summary>
+            استعلام قیمت باربری
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.PublicController.Basket(System.Int32)">
+            <summary>
+            سبد کالا
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.PublicController.AddBasket(System.Nullable{System.Int32},System.Int32,System.Int32)">
+            <summary>
+            سبد کالای عمومی افزودن
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.PublicController.EditBasket(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            سبد کالای عمومی ویرایش
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.PublicController.DeleteBasket(System.Int32,System.Int32)">
+            <summary>
+            سبد کالای عمومی حذف
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.PublicController.EmptyBasket(System.Int32)">
+            <summary>
+            سبد کالا خالی کردن
+            </summary>
+        </member>
+        <member name="T:Narije.Api.Controllers.UserController">
+            <summary>
+            Home
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.#ctor(Narije.Infrastructure.Contexts.NarijeDBContext,Microsoft.AspNetCore.Http.IHttpContextAccessor,Microsoft.Extensions.Configuration.IConfiguration,System.Net.Http.IHttpClientFactory,Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            متد سازنده
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.VisitProduct(System.Int32)">
+            <summary>
+             اطلاعات کاربری
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.WishList">
+            <summary>
+            لیست علاقه مندی ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.ToggleWishList(System.Int32)">
+            <summary>
+            تغییر وضعیت علاقه مندی ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.Basket">
+            <summary>
+            سبد کالا
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.AddBasket(System.Int32,System.Int32)">
+            <summary>
+            سبد کالا افزودن
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.EditBasket(System.Int32,System.Int32)">
+            <summary>
+            سبد کالا ویرایش
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.DeleteBasket(System.Int32)">
+            <summary>
+            سبد کالا حذف
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.EmptyBasket">
+            <summary>
+            سبد کالا خالی کردن
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.ImportBasket(System.Int32)">
+            <summary>
+            تبدیل سبد کالای عمومی به شخصی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.LastVisit">
+            <summary>
+            آخرین بازدیدها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.Scores(System.Nullable{System.Int32},System.Nullable{System.Int32},System.Boolean)">
+            <summary>
+            نقد های کاربر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.AddScore(Narije.Core.DTOs.User.ScoreRequest)">
+            <summary>
+            افزودن نقد
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.User">
+            <summary>
+             اطلاعات کاربری
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.EditUser(Narije.Core.DTOs.Admin.UserRequest)">
+            <summary>
+            ویرایش کاربر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.ChangePassword(System.String,System.String)">
+            <summary>
+            تغییر رمز کاربر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.resetPassword(System.String,System.String)">
+            <summary>
+            ثبت اولیه یا ریست رمز کاربر
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.Addresses">
+            <summary>
+             لیست آدرس ها
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.AddAddress(Narije.Core.DTOs.Admin.UserAddressRequest)">
+            <summary>
+            افزودن آدرس
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.EditAddress(Narije.Core.DTOs.Admin.UserAddressRequest)">
+            <summary>
+            ویرایش آدرس
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.DeleteAddress(System.Int32)">
+            <summary>
+            حذف آدرس
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.SetDefaultAddress(System.Int32)">
+            <summary>
+            تعیین آدرس پیش فرض
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.Orders(System.Nullable{System.Int32},System.Nullable{System.Int32},System.String,System.String,System.String,System.Nullable{System.Int32})">
+            <summary>
+             لیست سفارشات ها
+             ترتیب
+             1 بر اساس تاریخ صعودی
+             2 بر اساس تاریخ نزولی
+             3 بر اساس مبلغ صعودی
+             4 بر اساس مبلغ نزولی
+             5 بر اساس تعداد صعودی
+             6 بر اساس تعداد نزولی
+             7 بر اساس تاریخ تحویل صعودی
+             8 بر اساس تاریخ تحویل نزولی
+             9 بر اساس آی دی صعودی
+             10 بر اساس آی دی نزولی
+             13 بر اساس بروزرسانی صعودی
+             14 بر اساس بروزرسانی نزولی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.OrderDetail(System.Int32)">
+            <summary>
+             جزئیات سفارش 
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.Wallet(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            کیف پول
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.WalletGetConsumeCode(System.Int32)">
+            <summary>
+            درخواست مصرف
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Controllers.UserController.Invoice(System.Int32)">
+            <summary>
+             فاکتور
+            </summary>
+        </member>
+        <member name="T:Narije.Api.Helpers.EnumHelper`1">
+            <summary>
+            EnumHelper
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.EnumHelper`1.GetValues(System.Enum)">
+            <summary>
+            GetValues
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.EnumHelper`1.Parse(System.String)">
+            <summary>
+            Parse
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.EnumHelper`1.GetNames(System.Enum)">
+            <summary>
+            GetNames
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.EnumHelper`1.GetDisplayValues(System.Enum)">
+            <summary>
+            GetDisplayValues
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.EnumHelper`1.LookupResource(System.Type,System.String)">
+            <summary>
+            LookupResource
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.EnumHelper`1.GetDisplayValue(`0)">
+            <summary>
+            GetDisplayValue
+            </summary>
+        </member>
+        <member name="T:Narije.Api.Helpers.Extension">
+            <summary>
+            متد های الحاقی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.Extension.LogError(System.Exception,Narije.Infrastructure.Contexts.NarijeDBContext,Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            لاگ خطا
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.Extension.GetDatesBetween(System.DateTime,System.DateTime)">
+            <summary>
+            دریافت تاریخ های بین بازه
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.Extension.SendSms(System.Net.Http.IHttpClientFactory,System.String,System.String)">
+            <summary>
+            ارسال پیامک
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.Extension.GetPaged``1(System.Linq.IQueryable{``0},System.Int32,System.Int32)">
+            <summary>
+            تابع صفحه بندی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.Extension.OrderBy``1(System.Linq.IQueryable{``0},System.String,System.Boolean)">
+            <summary>
+            افزودن سورت به کوئری
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.Extension.ConvertStringToTimeSpan(System.String)">
+            <summary>
+            تبدیل رشته به TimeSpan
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.Extension.ConvertDateToPersianDayOfWeek(System.DateTime)">
+            <summary>
+            دریافت روز هفته شمسی از تاریخ میلادی
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.Extension.ConvertNumberToTime(System.Int32)">
+            <summary>
+            تبدیل عدد صحیح به ساعت و دقیقه
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.Extension.ConvertNumberToDayTime(System.Int32,System.Int32)">
+            <summary>
+            تبدیل عدد صحیح به روز و ساعت و دقیقه
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.Extension.ConvertNumberToDayHourMin(System.Int32)">
+            <summary>
+            تبدیل عدد صحیح به روز و ساعت و دقیقه
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.Extension.ConvertQueryStringToModel(Microsoft.AspNetCore.Http.IHttpContextAccessor)">
+            <summary>
+            تبدیل کوئری استرینگ به مدل
+            </summary>
+        </member>
+        <member name="T:Narije.Api.Helpers.LogMiddleware">
+            <summary>
+            LogMiddleware
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.LogMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate)">
+            <summary>
+            LogMiddleware
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.LogMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext,Narije.Infrastructure.Contexts.NarijeDBContext)">
+            <summary>
+            InvokeAsync
+            </summary>
+        </member>
+        <member name="T:Narije.Api.Helpers.OptionsMiddleware">
+            <summary>
+            OptionsMiddleware
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.OptionsMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate)">
+            <summary>
+            OptionsMiddleware
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.OptionsMiddleware.Invoke(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Invoke
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.OptionsMiddleware.BeginInvoke(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            BeginInvoke
+            </summary>
+        </member>
+        <member name="T:Narije.Api.Helpers.OptionsMiddlewareExtensions">
+            <summary>
+            OptionsMiddlewareExtensions
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Helpers.OptionsMiddlewareExtensions.UseOptions(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            UseOptions
+            </summary>
+        </member>
+        <member name="T:Narije.Api.Program">
+            <summary>
+            Program
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Program.Main(System.String[])">
+            <summary>
+            Main
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Program.CreateHostBuilder(System.String[])">
+            <summary>
+            CreateHostBuilder
+            </summary>
+        </member>
+        <member name="T:Narije.Api.Startup">
+            <summary>
+            Startup
+            </summary>
+        </member>
+        <member name="P:Narije.Api.Startup._IConfiguration">
+            <summary>
+            Property
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Startup.#ctor(Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Startup
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Startup.ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            ConfigureServices
+            </summary>
+        </member>
+        <member name="M:Narije.Api.Startup.Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            Configure
+            </summary>
+        </member>
+        <member name="T:Tikment.Api.Helpers.PermissionMiddleware">
+            <summary>
+            CheckRoleActionFilter
+            </summary>
+        </member>
+        <member name="M:Tikment.Api.Helpers.PermissionMiddleware.OnActionExecutionAsync(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext,Microsoft.AspNetCore.Mvc.Filters.ActionExecutionDelegate)">
+            <summary>
+            CheckRoleActionFilter
+            </summary>
+        </member>
+    </members>
+</doc>

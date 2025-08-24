@@ -1,0 +1,93 @@
+default:
+  tags:
+    - api
+  image: $CI_REGISTRY/docker:24.0.6
+
+stages:
+  - Build
+  - Deploy
+  - Clean
+
+Build:
+  stage: Build
+  script:
+    - >
+      docker build
+      --file ./${CI_COMMIT_BRANCH}.Dockerfile
+      --cache-from narijeh-$CI_PROJECT_NAME:$CI_COMMIT_BRANCH
+      --force-rm=true
+      --label "created=$CI_COMMIT_TIMESTAMP"
+      --label "revision=$CI_COMMIT_SHA"
+      --label "title=$CI_PROJECT_TITLE"
+      --label "url=$CI_PROJECT_URL"
+      --label "version=$CI_COMMIT_REF_NAME"
+      --tag narijeh-$CI_PROJECT_NAME:$CI_COMMIT_BRANCH
+      .
+
+
+Deploy Main:
+  stage: Deploy
+  only:
+    - main
+  script:
+    - echo "Looking for image 'narijeh-$CI_PROJECT_NAME:$CI_COMMIT_BRANCH'"
+    - |
+      if [ -z "$(docker images -q narijeh-$CI_PROJECT_NAME:$CI_COMMIT_BRANCH)" ]; then
+        echo "Skipping deploy of 'narijeh-$CI_PROJECT_NAME:$CI_COMMIT_BRANCH', because image does not exist!"
+        exit 1
+      fi
+    - echo "Force remove container if exists."
+    - docker rm -f narijeh-$CI_PROJECT_NAME-$CI_COMMIT_BRANCH || true
+    - echo "Run new container."
+    - >
+      docker run
+      --detach
+      --name narijeh-$CI_PROJECT_NAME-$CI_COMMIT_BRANCH
+      --publish 8080:80
+      --user 'root'
+      --group-add users
+      --volume $CI_Volume/narijeh-$CI_PROJECT_NAME-$CI_COMMIT_BRANCH:/data
+      --volume $CI_Volume/narijeh-front-$CI_COMMIT_BRANCH:/sitemap
+      --env-file ./${CI_COMMIT_BRANCH}.env
+      --restart always
+      --label io.portainer.accesscontrol.teams=narijeh
+      narijeh-$CI_PROJECT_NAME:$CI_COMMIT_BRANCH
+
+Deploy Dev:
+  stage: Deploy
+  except:
+    - main
+  script:
+    - echo "Looking for image 'narijeh-$CI_PROJECT_NAME:$CI_COMMIT_BRANCH'"
+    - |
+      if [ -z "$(docker images -q narijeh-$CI_PROJECT_NAME:$CI_COMMIT_BRANCH)" ]; then
+        echo "Skipping deploy of 'narijeh-$CI_PROJECT_NAME:$CI_COMMIT_BRANCH', because image does not exist!"
+        exit 1
+      fi
+    - echo "Force remove container if exists."
+    - docker rm -f narijeh-$CI_PROJECT_NAME-$CI_COMMIT_BRANCH || true
+    - echo "Run new container."
+    - >
+      docker run
+      --detach
+      --name narijeh-$CI_PROJECT_NAME-$CI_COMMIT_BRANCH
+      --user 'root'
+      --group-add users
+      --volume $CI_Volume/narijeh-$CI_PROJECT_NAME-$CI_COMMIT_BRANCH:/data
+      --volume $CI_Volume/narijeh-front-$CI_COMMIT_BRANCH:/sitemap
+      --publish 7070:80
+      --env-file ./${CI_COMMIT_BRANCH}.env
+      --restart always
+      --label io.portainer.accesscontrol.teams=paydar
+      narijeh-$CI_PROJECT_NAME:$CI_COMMIT_BRANCH
+
+
+Clean:
+  stage: Clean
+  variables:
+    GIT_STRATEGY: none
+  before_script: []
+  script:
+    - echo "Remove <none> taged images of Project."
+    - docker rmi $(docker images | grep "<none>" | awk '{ print $3; }') || true
+  after_script: []

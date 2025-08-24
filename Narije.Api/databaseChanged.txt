@@ -1,0 +1,7 @@
+setting => CompanyDarkGalleryId
+menu => mealType
+reserve => mealType
+enums
+vResearve
+vFood
+customer => mealTypes
