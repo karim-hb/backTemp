@@ -34,7 +34,7 @@ namespace Narije.Core.Interfaces
 
         Task<FileContentResult> ExportReserveBaseOnTheFood(DateTime fromData, DateTime toData, string foodGroupIds = null, bool showAccessory = false, bool justPredict = false);
         Task<FileContentResult> ExportReserveBaseOnTheBranches(DateTime fromData, DateTime toData, string foodGroupIds = null, bool showAccessory = false, bool justPredict = false);
-        Task<FileContentResult> ExportReserveBaseOnTheCustomers(DateTime fromData, DateTime toData, string foodGroupIds = null, bool showAccessory = false, bool justPredict = false);
+        Task<FileContentResult> ExportReserveBaseOnTheCustomers(DateTime fromData, DateTime toData, string foodGroupIds = null, bool showAccessory = false, bool justPredict = false, bool isPdf = false);
         Task<ApiResponse> GetByFoodAsync();
 
         Task<ApiResponse> ExportAsync();
