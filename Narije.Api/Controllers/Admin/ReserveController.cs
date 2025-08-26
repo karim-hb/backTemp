@@ -181,11 +181,11 @@ namespace Narije.Api.Controllers.Admin.Reserve
         [HttpGet]
         [Route("ExportReserveBaseOnTheCustomers")]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> ExportReserveBaseOnTheCustomers(DateTime fromData, DateTime toData,  string foodGroupIds = null, bool showAccessory = false, bool justPredict = false)
+        public async Task<IActionResult> ExportReserveBaseOnTheCustomers(DateTime fromData, DateTime toData,  string foodGroupIds = null, bool showAccessory = false, bool justPredict = false, bool isPdf = false)
         {
             try
             {
-                var fileResult = await _IReserveRepository.ExportReserveBaseOnTheCustomers(fromData: fromData, toData: toData,  foodGroupIds: foodGroupIds, showAccessory: showAccessory, justPredict: justPredict);
+                var fileResult = await _IReserveRepository.ExportReserveBaseOnTheCustomers(fromData: fromData, toData: toData,  foodGroupIds: foodGroupIds, showAccessory: showAccessory, justPredict: justPredict, isPdf: isPdf);
                 return fileResult;
             }
             catch (Exception Ex)
