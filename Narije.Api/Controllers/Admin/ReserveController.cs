@@ -181,11 +181,11 @@ namespace Narije.Api.Controllers.Admin.Reserve
         [HttpGet]
         [Route("ExportReserveBaseOnTheCustomers")]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> ExportReserveBaseOnTheCustomers(DateTime fromData, DateTime toData,  string foodGroupIds = null, bool showAccessory = false, bool justPredict = false)
+        public async Task<IActionResult> ExportReserveBaseOnTheCustomers(DateTime fromData, DateTime toData,  string foodGroupIds = null, bool showAccessory = false, bool justPredict = false, bool isPdf = false)
         {
             try
             {
-                var fileResult = await _IReserveRepository.ExportReserveBaseOnTheCustomers(fromData: fromData, toData: toData,  foodGroupIds: foodGroupIds, showAccessory: showAccessory, justPredict: justPredict);
+                var fileResult = await _IReserveRepository.ExportReserveBaseOnTheCustomers(fromData: fromData, toData: toData,  foodGroupIds: foodGroupIds, showAccessory: showAccessory, justPredict: justPredict, isPdf: isPdf);
                 return fileResult;
             }
             catch (Exception Ex)
@@ -252,60 +252,27 @@ namespace Narije.Api.Controllers.Admin.Reserve
         }
 
         /// <summary>
-        /// فهرست همه
+        /// GetAllByParams
         /// </summary>
         [HttpGet]
-        [Route("GetAllByFood")]
+        [Route("GetAllByParams")]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> GetAllByFood(int? page, int? limit, int paramsId)
+        public async Task<IActionResult> GetAllByParams(int? page, int? limit, int paramsId, string paramsName, string headerName)
         {
             try
             {
-                return this.ServiceReturn(await _IReserveRepository.GetAllByParamsAsync(page: page, limit: limit, paramsId: paramsId , paramsName: "foodid" , headerName:"ReserveByFood"));
+                return this.ServiceReturn(await _IReserveRepository.GetAllByParamsAsync(page: page, limit: limit, paramsId: paramsId, paramsName: paramsName, headerName: headerName));
             }
             catch (Exception Ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
-        /// <summary>
-        /// فهرست همه
-        /// </summary>
-        [HttpGet]
-        [Route("GetAllByUser")]
-        [MapToApiVersion("2")]
-        public async Task<IActionResult> GetAllByUser(int? page, int? limit, int paramsId)
-        {
-            try
-            {
-                return this.ServiceReturn(await _IReserveRepository.GetAllByParamsAsync(page: page, limit: limit, paramsId: paramsId, paramsName: "userid", headerName: "ReserveByUser"));
-            }
-            catch (Exception Ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
-        }
-        /// <summary>
-        /// فهرست همه
-        /// </summary>
-        [HttpGet]
-        [Route("GetAllByCustomer")]
-        [MapToApiVersion("2")]
-        public async Task<IActionResult> GetAllByCustomer(int? page, int? limit, int paramsId)
-        {
-            try
-            {
-                return this.ServiceReturn(await _IReserveRepository.GetAllByParamsAsync(page: page, limit: limit, paramsId: paramsId, paramsName: "customerid", headerName: "ReserveByCustomer"));
-            }
-            catch (Exception Ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
-        }
+
         /// <summary>
         /// حذف
         /// </summary>
-        [HttpDelete]
+        [HttpPost]
         [Route("Delete")]
         [MapToApiVersion("2")]
         public async Task<IActionResult> Delete(int id)
@@ -321,12 +288,12 @@ namespace Narije.Api.Controllers.Admin.Reserve
         }
 
         /// <summary>
-        /// درج
+        /// افزودن
         /// </summary>
         [HttpPost]
         [Route("Insert")]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> Insert([FromForm]ReserveInsertRequest request)
+        public async Task<IActionResult> Insert(ReserveInsertRequest request)
         {
             try
             {
@@ -341,10 +308,10 @@ namespace Narije.Api.Controllers.Admin.Reserve
         /// <summary>
         /// ویرایش
         /// </summary>
-        [HttpPut]
+        [HttpPost]
         [Route("Edit")]
         [MapToApiVersion("2")]
-        public async Task<IActionResult> Edit([FromForm]ReserveEditRequest request)
+        public async Task<IActionResult> Edit(ReserveEditRequest request)
         {
             try
             {
@@ -355,25 +322,6 @@ namespace Narije.Api.Controllers.Admin.Reserve
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
-
-        /// <summary>
-        /// فهرست همه
-        /// </summary>
-        [HttpGet]
-        [Route("GetByFood")]
-        [MapToApiVersion("2")]
-        public async Task<IActionResult> GetByFood()
-        {
-            try
-            {
-                return this.ServiceReturn(await _IReserveRepository.GetByFoodAsync());
-            }
-            catch (Exception Ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
-        }
-
     }
 }
 

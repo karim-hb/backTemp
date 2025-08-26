@@ -27,6 +27,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml.Linq;
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
+using QuestPDF.Helpers;
 
 namespace Narije.Infrastructure.Repositories
 {
@@ -117,7 +120,6 @@ namespace Narije.Infrastructure.Repositories
             return new ApiOkResponse(_Message: "SUCCESS", _Data: Reserves.Data, _Meta: Reserves.Meta, _Header: header);
         }
         #endregion
-
 
         #region ExportBranchServicesAsync
         public async Task<FileContentResult> ExportBranchServicesAsync(DateTime fromData, DateTime toData, bool predict)
@@ -1447,24 +1449,21 @@ namespace Narije.Infrastructure.Repositories
             }
         }
 
-        public async Task<FileContentResult> ExportReserveBaseOnTheCustomers(DateTime fromDate, DateTime toDate, string foodGroupIds = null, bool showAccessory = false, bool justPredict = false)
+        public async Task<FileContentResult> ExportReserveBaseOnTheCustomers(DateTime fromDate, DateTime toDate, string foodGroupIds = null, bool showAccessory = false, bool justPredict = false, bool isPdf = false)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
             var reservesQuery = _NarijeDBContext.vReserves
-                   .Where(r => r.DateTime.Date >= fromDate.Date && r.DateTime.Date <= toDate.Date && r.Num > 0  );
+                   .Where(r => r.DateTime.Date >= fromDate.Date && r.DateTime.Date <= toDate.Date && r.Num > 0);
 
             if (justPredict)
             {
                 reservesQuery = reservesQuery.Where(c => c.State == (int)EnumReserveState.perdict);
             }
-            
             else
             {
-                reservesQuery = reservesQuery.Where(c => c.State != (int)EnumReserveState.perdict );
+                reservesQuery = reservesQuery.Where(c => c.State != (int)EnumReserveState.perdict);
             }
-
-
 
             var company = await _NarijeDBContext.Settings
                                     .Select(A =>
@@ -1487,22 +1486,65 @@ namespace Narije.Infrastructure.Repositories
 
             var reserves = await reservesQuery.ToListAsync();
 
-            if (!reserves.Any())
-                throw new Exception("در این بازه رزرو یافت نشد");
+            // Fetch all active customers to display, even if they have zero reserves
+            var activeCustomers = await _NarijeDBContext.Customers
+                .Where(c => c.Active)
+                .AsNoTracking()
+                .ToListAsync();
 
+            // Build Branch title dictionary
+            var branchTitleMap = await _NarijeDBContext.Branch
+                .AsNoTracking()
+                .ToDictionaryAsync(b => b.Id, b => b.Title);
+
+            // Map each customer to the service branch for the specific Persian day
+            var persianCalendar = new PersianCalendar();
+            var dayOfWeek = persianCalendar.GetDayOfWeek(fromDate);
+            var customerBranchMap = new Dictionary<int, int>();
+            foreach (var c in activeCustomers)
+            {
+                int? branchIdForDay = null;
+                switch (dayOfWeek)
+                {
+                    case DayOfWeek.Saturday:
+                        branchIdForDay = c.BranchForSaturday; break;
+                    case DayOfWeek.Sunday:
+                        branchIdForDay = c.BranchForSunday; break;
+                    case DayOfWeek.Monday:
+                        branchIdForDay = c.BranchForMonday; break;
+                    case DayOfWeek.Tuesday:
+                        branchIdForDay = c.BranchForTuesday; break;
+                    case DayOfWeek.Wednesday:
+                        branchIdForDay = c.BranchForWednesday; break;
+                    case DayOfWeek.Thursday:
+                        branchIdForDay = c.BranchForThursday; break;
+                    case DayOfWeek.Friday:
+                        branchIdForDay = c.BranchForFriday; break;
+                }
+                customerBranchMap[c.Id] = branchIdForDay ?? 0;
+            }
+
+            // Accessory companies for all involved customers
             List<AccessoryCompany> accessoryCompanies = null;
             if (showAccessory)
             {
-                var customerIds = reserves.Select(r => r.CustomerId).Distinct().ToList();
+                var customerIds = activeCustomers.Select(c => c.Id).ToList();
                 accessoryCompanies = await _NarijeDBContext.AccessoryCompany
                     .Include(ac => ac.Accessory)
                     .Where(ac => customerIds.Contains(ac.CompanyId))
                     .ToListAsync();
             }
 
-            var persianCalendar = new PersianCalendar();
+            if (isPdf)
+            {
+                var pdfBytes = CreateCustomersPdf(activeCustomers, customerBranchMap, branchTitleMap, reserves, accessoryCompanies, showAccessory, fromDate, company);
+                return new FileContentResult(pdfBytes, "application/pdf")
+                {
+                    FileDownloadName = $"گزارش تفکیکی بر اساس مشتریان {DateTime.Now:yyyy-MM-dd}.pdf"
+                };
+            }
+
             var shamsiDate = $"{persianCalendar.GetYear(fromDate)}/{persianCalendar.GetMonth(fromDate):D2}/{persianCalendar.GetDayOfMonth(fromDate):D2}";
-            var dayOfWeek = persianCalendar.GetDayOfWeek(fromDate);
             var persianDayName = GetPersianDayName(dayOfWeek);
             var meals = await _NarijeDBContext.Meal.ToListAsync();
 
@@ -1510,13 +1552,13 @@ namespace Narije.Infrastructure.Repositories
             var fileName = $"گزارش تفکیکی بر اساس مشتریان {DateTime.Now:yyyy-MM-dd}.xlsx";
             using (var package = new ExcelPackage())
             {
-                CreateMealWorksheetForCustomers(package, "همه", reserves, dateWithDayName, "", showAccessory, accessoryCompanies, company);
+                // Main consolidated sheet
+                CreateMealWorksheetForCustomers(package, "لیست غذایی", reserves, dateWithDayName, activeCustomers, customerBranchMap, branchTitleMap, showAccessory, accessoryCompanies, company);
                 foreach (var meal in meals)
                 {
                     var mealReserves = reserves.Where(r => r.MealType == meal.Id).ToList();
-                    CreateMealWorksheetForCustomers(package, meal.Title, mealReserves, dateWithDayName, "", showAccessory, accessoryCompanies, company);
+                    CreateMealWorksheetForCustomers(package, meal.Title, mealReserves, dateWithDayName, activeCustomers, customerBranchMap, branchTitleMap, showAccessory, accessoryCompanies, company);
                 }
-
 
                 var excelBytes = package.GetAsByteArray();
                 return new FileContentResult(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
@@ -1526,36 +1568,59 @@ namespace Narije.Infrastructure.Repositories
             }
         }
 
-        private void CreateMealWorksheetForCustomers(ExcelPackage package, string mealTitle, List<vReserve> reserves, string dateWithDayName, string shamsiPeriodEnd, bool showAccessory, List<AccessoryCompany> accessoryCompanies, string company)
+        private static string FormatDeliverHour(string deliverHour)
         {
-            var allFoods = reserves.Select(r => new { Title = r.FoodTitle, Arpa = r.FoodArpaNumber, Category = r.Category }).Distinct().ToList();
-            var branchColors = new List<Color>
-    {
-        Color.LightGreen,
-        Color.LightBlue,
+            if (string.IsNullOrWhiteSpace(deliverHour)) return string.Empty;
+            if (TimeSpan.TryParse(deliverHour, out var ts))
+                return new DateTime(ts.Ticks).ToString("HH:mm");
+            // fallback trims seconds if present 00:00:00 -> 00:00
+            if (deliverHour.Length >= 5) return deliverHour.Substring(0, 5);
+            return deliverHour;
+        }
 
-        Color.LightPink,
-                Color.LightYellow,
-        Color.LightGray
-    };
+        private void CreateMealWorksheetForCustomers(ExcelPackage package, string mealTitle, List<vReserve> reserves, string dateWithDayName, List<Customer> activeCustomers, Dictionary<int, int> customerBranchMap, Dictionary<int, string> branchTitleMap, bool showAccessory, List<AccessoryCompany> accessoryCompanies, string company)
+        {
+            // Build food set
+            var allFoods = reserves
+                .Select(r => new { Title = r.FoodTitle, Arpa = r.FoodArpaNumber, Category = r.Category, IsFood = r.IsFood })
+                .Distinct()
+                .ToList();
 
             if (showAccessory && accessoryCompanies != null)
             {
-                var accessories = accessoryCompanies.Select(ac => new { Title = ac.Accessory.Title, Arpa = ac.Accessory.ArpaNumber, Category = "اکسسوری" }).Distinct().ToList();
-                allFoods.AddRange(accessories);
+                var accessories = accessoryCompanies
+                    .Select(ac => new { Title = ac.Accessory.Title, Arpa = ac.Accessory.ArpaNumber, Category = "اکسسوری", IsFood = false })
+                    .Distinct()
+                    .ToList();
+                // Union by title to avoid duplicates
+                allFoods = allFoods.Concat(accessories)
+                    .GroupBy(f => f.Title)
+                    .Select(g => g.First())
+                    .ToList();
             }
 
+            // Determine which titles are main foods
+            var isMainFoodByTitle = allFoods
+                .ToDictionary(f => f.Title, f => reserves.Any(r => r.FoodTitle == f.Title && r.IsFood));
+
             var worksheet = package.Workbook.Worksheets.Add(mealTitle);
+
+            // Page setup
+            worksheet.PrinterSettings.Orientation = eOrientation.Landscape;
+            worksheet.PrinterSettings.PaperSize = ePaperSize.A4;
+            worksheet.PrinterSettings.FitToPage = true;
+            worksheet.PrinterSettings.FitToWidth = 1;
+            worksheet.PrinterSettings.FitToHeight = 0;
+
             var reservesCount = allFoods.Count();
-            int totalColumns = reservesCount + 7;
-           // totalColumns = totalColumns > 8 ? totalColumns : 9;
-            var branchColorMap = new Dictionary<int, Color>();
+            int preColumns = 6; // Service Branch, CustomerName, BranchCode, BranchTitle, DeliverTime, Total
+            int totalColumns = reservesCount + preColumns;
 
             worksheet.View.RightToLeft = true;
-            worksheet.Row(1).Height = 100;
+            worksheet.Row(1).Height = 60;
 
             worksheet.Cells[1, 1].Value = company + " , " + "فرم گزارش سفارش روزانه مشتریان";
-            worksheet.Cells[1, 1, 1, 6].Merge = true;
+            worksheet.Cells[1, 1, 1, preColumns].Merge = true;
             worksheet.Cells[1, 1].Style.Font.Bold = true;
             worksheet.Cells[1, 1].Style.Font.Size = 14;
             worksheet.Cells[1, 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
@@ -1564,9 +1629,10 @@ namespace Narije.Infrastructure.Repositories
             worksheet.Cells[1, 1].Style.Fill.BackgroundColor.SetColor(Color.White);
 
             var currentDate = DateTime.Now;
-            var shamsiDate = $"{new PersianCalendar().GetYear(currentDate)}/{new PersianCalendar().GetMonth(currentDate):D2}/{new PersianCalendar().GetDayOfMonth(currentDate):D2}";
+            var pc = new PersianCalendar();
+            var shamsiDate = $"{pc.GetYear(currentDate)}/{pc.GetMonth(currentDate):D2}/{pc.GetDayOfMonth(currentDate):D2}";
             var currentTime = $"{currentDate:HH:mm}";
-            var dateRange = worksheet.Cells[1, 7, 1, totalColumns];
+            var dateRange = worksheet.Cells[1, preColumns + 1, 1, totalColumns];
             dateRange.Merge = true;
             dateRange.Value = $"تاریخ گزارش‌گیری: {shamsiDate}\n\nساعت گزارش‌گیری: {currentTime}";
             dateRange.Style.Font.Bold = true;
@@ -1577,165 +1643,158 @@ namespace Narije.Infrastructure.Repositories
             dateRange.Style.Fill.PatternType = ExcelFillStyle.Solid;
             dateRange.Style.Fill.BackgroundColor.SetColor(Color.White);
 
-
-
-
             worksheet.Cells[1, 1, 1, totalColumns].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
 
-            worksheet.Cells[2, 1, 2, 6].Merge = true;
+            worksheet.Cells[2, 1, 2, preColumns].Merge = true;
             worksheet.Cells[2, 1].Value = $"  وعده غذایی \n  {mealTitle}";
             worksheet.Cells[2, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
             worksheet.Cells[2, 1].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-            worksheet.Row(2).Height = 120;
+            worksheet.Row(2).Height = 60;
 
-            var branches = reserves.Select(r => new { BranchId = r.BranchId ?? 0, BranchTitle = r.BranchTitle }).Distinct().ToList();
+            // Header for food titles
+            int colIndex = preColumns + 1;
+            worksheet.Cells[2, colIndex].Value = "لیست غذایی";
+            worksheet.Cells[2, colIndex, 2, totalColumns].Merge = true;
+            worksheet.Cells[2, colIndex, 2, totalColumns].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            worksheet.Cells[2, colIndex, 2, totalColumns].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
-            int colIndex = 7;
-            worksheet.Cells[2, colIndex].Value = " نام کالا";
-            worksheet.Cells[2, colIndex].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            worksheet.Cells[2, colIndex].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            colIndex++;
-            foreach (var food in allFoods)
+            // Row 3: Food Names
+            for (int i = 0; i < allFoods.Count; i++)
             {
-                worksheet.Cells[2, colIndex].Value = food.Title;
-                worksheet.Cells[2, colIndex].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                worksheet.Cells[2, colIndex].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-                worksheet.Cells[2, colIndex].Style.TextRotation = 90;
-                colIndex++;
+                var f = allFoods[i];
+                worksheet.Cells[3, preColumns + 1 + i].Value = f.Title;
+                worksheet.Cells[3, preColumns + 1 + i].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[3, preColumns + 1 + i].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                worksheet.Cells[3, preColumns + 1 + i].Style.WrapText = true;
+                // Color only main foods columns
+                if (isMainFoodByTitle.TryGetValue(f.Title, out var main) && main)
+                {
+                    worksheet.Cells[3, preColumns + 1 + i].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet.Cells[3, preColumns + 1 + i].Style.Fill.BackgroundColor.SetColor(Color.LightYellow);
+                }
             }
 
-            colIndex = 7;
-            worksheet.Cells[3, colIndex].Value = "کد کالا";
-            worksheet.Cells[3, colIndex].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            worksheet.Cells[3, colIndex].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            colIndex++;
-            foreach (var food in allFoods)
+            // Row 4: Food Codes rotated 90 degrees
+            colIndex = preColumns + 1;
+            for (int i = 0; i < allFoods.Count; i++)
             {
-                worksheet.Cells[3, colIndex].Value = food.Arpa;
-                worksheet.Cells[3, colIndex].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                worksheet.Cells[3, colIndex].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-                colIndex++;
+                worksheet.Cells[4, colIndex + i].Value = allFoods[i].Arpa;
+                worksheet.Cells[4, colIndex + i].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells[4, colIndex + i].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                worksheet.Cells[4, colIndex + i].Style.TextRotation = 90;
             }
 
-            int totalRowsForMerge = 3 + branches.Count();
+            int totalRowsForMerge = 4 + activeCustomers.Count;
 
-            worksheet.Cells[3, 1, totalRowsForMerge, 6].Merge = true;
+            worksheet.Cells[3, 1, totalRowsForMerge, preColumns].Merge = true;
             worksheet.Cells[3, 1].Value = $"   تاریخ ارایه غذا: \n\r {dateWithDayName}";
             worksheet.Cells[3, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
             worksheet.Cells[3, 1].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
 
-            colIndex = 7;
-            worksheet.Cells[4, colIndex].Value = " جمع ";
-            worksheet.Cells[4, colIndex].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            worksheet.Cells[4, colIndex].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            colIndex++;
-            foreach (var food in allFoods)
-            {
-                var total = reserves.Where(r => r.FoodTitle == food.Title ).Sum(r => r.Num);
-               // //if (showAccessory && food.Category == "اکسسوری")
-              //  {
-               //     var accessoryTotal = accessoryCompanies.Where(ac => ac.Accessory.Title == food.Title).Sum(ac => ac.Numbers);
-               //     total += accessoryTotal;
-             //   }
-                worksheet.Cells[4, colIndex].Value = total;
-                worksheet.Cells[4, colIndex].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                worksheet.Cells[4, colIndex].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-                colIndex++;
-            }
+            // Row 4, preColumns: label for totals column
+            worksheet.Cells[4, preColumns].Value = "جمع کل";
+            worksheet.Cells[4, preColumns].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            worksheet.Cells[4, preColumns].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
 
-            for (int i = 0; i < branches.Count; i++)
+            // Row 4: totals per food across all customers
+            colIndex = preColumns + 1;
+            for (int i = 0; i < allFoods.Count; i++)
             {
-                branchColorMap[branches[i].BranchId] = branchColors[i % branchColors.Count];
-            }
-
-            int rowIndex = 5;
-            foreach (var branch in branches)
-            {
-                var branchColor = branchColorMap[branch.BranchId];
-                worksheet.Cells[rowIndex, 1, rowIndex, totalColumns ].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                worksheet.Cells[rowIndex, 1, rowIndex, totalColumns ].Style.Fill.BackgroundColor.SetColor(branchColor);
-
-                worksheet.Cells[rowIndex, 7].Value = branch.BranchTitle;
-                colIndex = 8;
-                foreach (var food in allFoods)
+                var foodTitle = allFoods[i].Title;
+                int total = reserves.Where(r => r.FoodTitle == foodTitle).Sum(r => r.Num);
+                if (showAccessory && (allFoods[i].Category == "اکسسوری"))
                 {
-                    var branchTotal = reserves.Where(r => r.BranchId == branch.BranchId && r.FoodTitle == food.Title ).Sum(r => r.Num);
-                    if (showAccessory && food.Category == "اکسسوری")
-                    {
-                        var branchCustomerIds = reserves
-                            .Where(r => r.BranchId == branch.BranchId)
-                            .Select(r => r.CustomerId)
-                            .Distinct()
-                            .ToList();
-
-                        var accessoryTotal = accessoryCompanies
-                            .Where(ac => branchCustomerIds.Contains(ac.CompanyId) && ac.Accessory.Title == food.Title)
-                            .Sum(ac => ac.Numbers);
-
-                        branchTotal += accessoryTotal;
-                    }
-                    worksheet.Cells[rowIndex, colIndex].Value = branchTotal;
-                    worksheet.Cells[rowIndex, colIndex].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    worksheet.Cells[rowIndex, colIndex].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-                    colIndex++;
+                    var accessoryTotal = accessoryCompanies?.Where(ac => ac.Accessory.Title == foodTitle).Sum(ac => ac.Numbers) ?? 0;
+                    total += accessoryTotal;
                 }
-                rowIndex++;
+                worksheet.Cells[4, colIndex + i].Value = total == 0 ? (object)string.Empty : total;
             }
-            //-------------------------------- body of excel ------------------------------------------//
 
+            // Body header
+            int rowIndex = 5;
             worksheet.Cells[rowIndex, 1].Value = "شعبه خدمات دهنده";
-            worksheet.Cells[rowIndex, 2].Value = "کد شرکت";
-            worksheet.Cells[rowIndex, 3].Value = "نام شرکت";
-            worksheet.Cells[rowIndex, 4].Value = "کد شعبه";
-            worksheet.Cells[rowIndex, 5].Value = "نام شعبه";
-            worksheet.Cells[rowIndex, 6].Value = "ساعت تحویل";
-            worksheet.Cells[rowIndex, 7].Value = "جمع";
+            worksheet.Cells[rowIndex, 2].Value = "نام مشتری";
+            worksheet.Cells[rowIndex, 3].Value = "کد شعبه";
+            worksheet.Cells[rowIndex, 4].Value = "نام شعبه";
+            worksheet.Cells[rowIndex, 5].Value = "ساعت تحویل";
+            worksheet.Cells[rowIndex, 6].Value = "جمع کل";
             rowIndex++;
 
-            var branchGroups = reserves
-                .GroupBy(r => new { BranchId = r.BranchId ?? 0, BranchTitle = r.BranchTitle })
+            // Build customer display entries with stable ordering (ParentId, ParentTitle, Title)
+            var customersById = activeCustomers.ToDictionary(c => c.Id, c => c);
+            string GetParentTitle(Customer c)
+            {
+                if (c.ParentId.HasValue && customersById.TryGetValue(c.ParentId.Value, out var p))
+                    return p.Title;
+                return string.Empty;
+            }
+
+            var displayCustomers = activeCustomers
+                .Select(c => new
+                {
+                    Customer = c,
+                    ParentTitle = GetParentTitle(c),
+                    BranchId = customerBranchMap.TryGetValue(c.Id, out var bid) ? bid : 0,
+                    BranchTitle = (customerBranchMap.TryGetValue(c.Id, out var bid2) && branchTitleMap.ContainsKey(bid2)) ? branchTitleMap[bid2] : string.Empty
+                })
+                .OrderBy(x => x.Customer.ParentId ?? 0)
+                .ThenBy(x => x.ParentTitle)
+                .ThenBy(x => x.Customer.Title)
+                .ToList();
+
+            // Group by branch title for display
+            var branchGroups = displayCustomers
+                .GroupBy(x => new { x.BranchId, x.BranchTitle })
                 .OrderBy(g => g.Key.BranchTitle)
                 .ToList();
 
             foreach (var branchGroup in branchGroups)
             {
                 int branchStartRow = rowIndex;
-                var customerGroups = branchGroup
-                    .GroupBy(r => new { r.CustomerId, r.CustomerTitle, r.CustomerCode, r.CustomerParentCode, r.CustomerParentTitle })
-                    .OrderBy(g => g.Key.CustomerTitle)
-                    .ToList();
 
-                foreach (var customerGroup in customerGroups)
+                foreach (var item in branchGroup)
                 {
-                    var customerReserves = customerGroup.ToList();
-                    var branchColor = branchColorMap[customerReserves.First().BranchId ?? 0];
-                    worksheet.Cells[rowIndex, 1, rowIndex, totalColumns ].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    worksheet.Cells[rowIndex, 1, rowIndex, totalColumns ].Style.Fill.BackgroundColor.SetColor(branchColor);
+                    var c = item.Customer;
+                    var customerReserves = reserves.Where(r => r.CustomerId == c.Id).ToList();
+
                     worksheet.Cells[rowIndex, 1].Value = branchGroup.Key.BranchTitle;
+                    worksheet.Cells[rowIndex, 2].Value = string.IsNullOrWhiteSpace(item.ParentTitle) ? c.Title : ($"{c.Title} - {item.ParentTitle}");
+                    worksheet.Cells[rowIndex, 3].Value = branchGroup.Key.BranchId == 0 ? string.Empty : branchGroup.Key.BranchId.ToString();
+                    worksheet.Cells[rowIndex, 4].Value = branchGroup.Key.BranchTitle;
 
-                    worksheet.Cells[rowIndex, 2].Value = customerGroup.Key.CustomerParentCode;
-                    worksheet.Cells[rowIndex, 3].Value = customerGroup.Key.CustomerParentTitle;
-                    worksheet.Cells[rowIndex, 4].Value = customerGroup.Key.CustomerCode;
-                    worksheet.Cells[rowIndex, 5].Value = customerGroup.Key.CustomerTitle;
-                    worksheet.Cells[rowIndex, 6].Value = customerReserves.First().DeliverHour;
+                    var deliver = customerReserves.FirstOrDefault()?.DeliverHour ?? string.Empty;
+                    worksheet.Cells[rowIndex, 5].Value = FormatDeliverHour(deliver);
 
-                    worksheet.Cells[rowIndex, 7].Value = customerReserves.Where(r=> r.IsFood == true).Sum(r => r.Num);
-
-                    colIndex = 8;
-                    foreach (var food in allFoods)
+                    // Grand total: main foods + accessories
+                    int grandTotalFoods = customerReserves.Sum(r => r.Num);
+                    int grandAccessory = 0;
+                    if (showAccessory && accessoryCompanies != null)
                     {
-                        var foodTotal = customerReserves
-                            .Where(r => r.FoodTitle == food.Title )
-                            .Sum(r => r.Num);
+                        grandAccessory = accessoryCompanies.Where(ac => ac.CompanyId == c.Id).Sum(ac => ac.Numbers);
+                    }
+                    worksheet.Cells[rowIndex, 6].Value = (grandTotalFoods + grandAccessory);
+
+                    // Per food columns
+                    colIndex = preColumns + 1;
+                    for (int i = 0; i < allFoods.Count; i++)
+                    {
+                        var food = allFoods[i];
+                        int foodTotal = customerReserves.Where(r => r.FoodTitle == food.Title).Sum(r => r.Num);
                         if (showAccessory && food.Category == "اکسسوری")
                         {
-                            var accessoryTotal = accessoryCompanies
-                                .Where(ac => ac.CompanyId == customerGroup.Key.CustomerId && ac.Accessory.Title == food.Title)
-                                .Sum(ac => ac.Numbers);
+                            var accessoryTotal = accessoryCompanies?.Where(ac => ac.CompanyId == c.Id && ac.Accessory.Title == food.Title).Sum(ac => ac.Numbers) ?? 0;
                             foodTotal += accessoryTotal;
                         }
-                        worksheet.Cells[rowIndex, colIndex].Value = foodTotal;
-                        colIndex++;
+                        if (foodTotal == 0)
+                        {
+                            worksheet.Cells[rowIndex, colIndex + i].Value = string.Empty;
+                            worksheet.Cells[rowIndex, colIndex + i].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                            worksheet.Cells[rowIndex, colIndex + i].Style.Fill.BackgroundColor.SetColor(Color.White);
+                        }
+                        else
+                        {
+                            worksheet.Cells[rowIndex, colIndex + i].Value = foodTotal;
+                        }
                     }
 
                     rowIndex++;
@@ -1748,16 +1807,102 @@ namespace Narije.Infrastructure.Repositories
                 }
             }
 
-            worksheet.Cells[1, 1, rowIndex - 1, colIndex - 1].Style.Border.Top.Style = ExcelBorderStyle.Thin;
-            worksheet.Cells[1, 1, rowIndex - 1, colIndex - 1].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-            worksheet.Cells[1, 1, rowIndex - 1, colIndex - 1].Style.Border.Right.Style = ExcelBorderStyle.Thin;
-            worksheet.Cells[1, 1, rowIndex - 1, colIndex - 1].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-            worksheet.Cells[1, 1, rowIndex - 1, colIndex - 1].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            worksheet.Cells[1, 1, rowIndex - 1, colIndex - 1].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
-            for (int i = 1; i <= colIndex - 1; i++)
+            // Borders and alignment
+            worksheet.Cells[1, 1, rowIndex - 1, totalColumns].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+            worksheet.Cells[1, 1, rowIndex - 1, totalColumns].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+            worksheet.Cells[1, 1, rowIndex - 1, totalColumns].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+            worksheet.Cells[1, 1, rowIndex - 1, totalColumns].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+            worksheet.Cells[1, 1, rowIndex - 1, totalColumns].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            worksheet.Cells[1, 1, rowIndex - 1, totalColumns].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            // Column widths: pre columns wider, food columns narrower
+            for (int i = 1; i <= preColumns; i++) worksheet.Column(i).Width = 20;
+            for (int i = preColumns + 1; i <= totalColumns; i++) worksheet.Column(i).Width = 10;
+
+            // Make header fonts bold
+            worksheet.Cells[1, 1, 4, totalColumns].Style.Font.Bold = true;
+        }
+
+        private byte[] CreateCustomersPdf(List<Customer> activeCustomers, Dictionary<int, int> customerBranchMap, Dictionary<int, string> branchTitleMap, List<vReserve> reserves, List<AccessoryCompany> accessoryCompanies, bool showAccessory, DateTime date, string company)
+        {
+            QuestPDF.Settings.License = LicenseType.Community;
+            var pc = new PersianCalendar();
+            var shamsiDate = $"{pc.GetYear(date)}/{pc.GetMonth(date):D2}/{pc.GetDayOfMonth(date):D2}";
+
+            var customersById = activeCustomers.ToDictionary(c => c.Id, c => c);
+            string GetParentTitle(Customer c)
             {
-                worksheet.Column(i).Width = 20;
+                if (c.ParentId.HasValue && customersById.TryGetValue(c.ParentId.Value, out var p))
+                    return p.Title;
+                return string.Empty;
             }
+
+            // Food columns (titles) based on reserves
+            var foodTitles = reserves.Select(r => r.FoodTitle).Distinct().OrderBy(t => t).ToList();
+
+            var displayCustomers = activeCustomers
+                .Select(c => new
+                {
+                    Customer = c,
+                    ParentTitle = GetParentTitle(c),
+                    BranchId = customerBranchMap.TryGetValue(c.Id, out var bid) ? bid : 0,
+                    BranchTitle = (customerBranchMap.TryGetValue(c.Id, out var bid2) && branchTitleMap.ContainsKey(bid2)) ? branchTitleMap[bid2] : string.Empty
+                })
+                .OrderBy(x => x.Customer.ParentId ?? 0)
+                .ThenBy(x => x.ParentTitle)
+                .ThenBy(x => x.Customer.Title)
+                .ToList();
+
+            var doc = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4.Landscape());
+                    page.Margin(20);
+                    page.Header().Text($"{company} - گزارش مشتریان ({shamsiDate})").SemiBold().FontSize(14).AlignRight();
+
+                    page.Content().Table(table =>
+                    {
+                        // Columns: Customer, Total, Foods...
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn(2);
+                            columns.ConstantColumn(60);
+                            foreach (var _ in foodTitles)
+                                columns.ConstantColumn(40);
+                        });
+
+                        // Header row
+                        table.Header(header =>
+                        {
+                            header.Cell().Text("نام مشتری").SemiBold();
+                            header.Cell().Text("جمع کل").SemiBold();
+                            foreach (var ft in foodTitles)
+                                header.Cell().Text(ft).SemiBold();
+                        });
+
+                        // Rows
+                        foreach (var item in displayCustomers)
+                        {
+                            var c = item.Customer;
+                            var customerReserves = reserves.Where(r => r.CustomerId == c.Id).ToList();
+                            var customerTitle = string.IsNullOrWhiteSpace(item.ParentTitle) ? c.Title : ($"{c.Title} - {item.ParentTitle}");
+                            int grandFood = customerReserves.Sum(r => r.Num);
+                            int grandAcc = showAccessory && accessoryCompanies != null ? accessoryCompanies.Where(ac => ac.CompanyId == c.Id).Sum(ac => ac.Numbers) : 0;
+
+                            table.Cell().Text(customerTitle);
+                            table.Cell().Text((grandFood + grandAcc).ToString());
+                            foreach (var ft in foodTitles)
+                            {
+                                var cnt = customerReserves.Where(r => r.FoodTitle == ft).Sum(r => r.Num);
+                                table.Cell().Text(cnt == 0 ? string.Empty : cnt.ToString());
+                            }
+                        }
+                    });
+                });
+            });
+
+            return doc.GeneratePdf();
         }
         #endregion
 
