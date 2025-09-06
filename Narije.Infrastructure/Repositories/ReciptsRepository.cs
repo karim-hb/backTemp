@@ -41,9 +41,9 @@ namespace Narije.Infrastructure.Repositories
          base(_IConfiguration: _IConfiguration, _IHttpContextAccessor: _IHttpContextAccessor, _NarijeDBContext: _NarijeDBContext, _IMapper: _IMapper)
         {
         }
-    
 
-       #region GetAllAsync
+
+        #region GetAllAsync
         // ------------------
         //  GetAllAsync
         // ------------------
@@ -54,7 +54,7 @@ namespace Narije.Infrastructure.Repositories
             if ((limit is null) || (limit == 0))
                 limit = 30;
 
-            var header = await HeaderHelper.GetHeader(_NarijeDBContext, _IHttpContextAccessor, "Recipt");
+            var header = await HeaderHelper.GetHeader(_NarijeDBContext, _IHttpContextAccessor, "Receipts");
             var query = FilterHelper.GetQuery(header, _IHttpContextAccessor);
 
             var Q = _NarijeDBContext.Recipt
@@ -68,11 +68,105 @@ namespace Narije.Infrastructure.Repositories
 
         }
         #endregion
+        #region ActiveReserve
+        // ------------------
+        //  ActiveReserve
+        // ------------------
+        public async Task<ApiResponse> ActiveReserve(string customerIds, DateTime date)
+        {
+            if (string.IsNullOrWhiteSpace(customerIds))
+                return new ApiErrorResponse(StatusCodes.Status400BadRequest, "شناسه مشتری ارسال نشده است");
+
+            var idStrings = customerIds
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim())
+                .Where(s => !string.IsNullOrEmpty(s))
+                .ToList();
+
+            var parseErrors = new List<string>();
+            var customerIdList = new List<int>();
+            foreach (var s in idStrings)
+            {
+                if (int.TryParse(s, out var id))
+                    customerIdList.Add(id);
+                else
+                    parseErrors.Add($"شناسه نامعتبر: '{s}'");
+            }
+
+            if (customerIdList.Count == 0)
+            {
+                var err = parseErrors.Count > 0 ? string.Join("; ", parseErrors) : "هیچ شناسه معتبری ارسال نشده است";
+                return new ApiErrorResponse(StatusCodes.Status400BadRequest, err);
+            }
+
+            var customers = await _NarijeDBContext.Customers
+                .Where(c => customerIdList.Contains(c.Id))
+                .ToListAsync();
+
+            var errors = new List<string>();
+
+            var foundIds = customers.Select(c => c.Id).ToHashSet();
+            var missingIds = customerIdList.Except(foundIds).ToList();
+            if (missingIds.Any())
+            {
+                errors.AddRange(missingIds.Select(id => $"شرکت با شناسه {id} یافت نشد"));
+            }
+
+            // check each customer for Active and reserves
+            foreach (var customer in customers)
+            {
+                string parentTitle = null;
+                if (customer.ParentId.HasValue)
+                {
+                    parentTitle = await _NarijeDBContext.Customers
+                        .Where(p => p.Id == customer.ParentId.Value)
+                        .Select(p => p.Title)
+                        .FirstOrDefaultAsync();
+                }
+
+                var customerFullTitle = string.IsNullOrWhiteSpace(parentTitle)
+                    ? customer.Title
+                    : $"{customer.Title} - {parentTitle}";
+
+                if (!customer.Active)
+                {
+                    errors.Add($"{customerFullTitle}: این شعبه غیرفعال است");
+                    continue;
+                }
+
+                var exists = await _NarijeDBContext.vReserves
+                    .AnyAsync(r => r.CustomerId == customer.Id
+                                   && r.DateTime.Date == date.Date
+                                   && r.Num > 0
+                                   && r.State != (int)EnumReserveState.perdict);
+
+                if (!exists)
+                {
+                    errors.Add($"{customerFullTitle}: این شرکت هیچ رزروی ندارد");
+                }
+            }
+
+            if (parseErrors.Any())
+            {
+                errors.InsertRange(0, parseErrors);
+            }
+
+            if (errors.Any())
+            {
+                var message = string.Join(" | ", errors);
+                return new ApiErrorResponse(StatusCodes.Status400BadRequest, message);
+            }
+
+            return new ApiOkResponse(_Message: "SUCCESS");
+        }
+        #endregion
+
+
 
 
         #region ExportRecipt
-        
-        public async Task<FileContentResult> ExportRecipt(int? customerId, DateTime date)
+
+        public async Task<FileContentResult> ExportRecipt(string customerIds, DateTime date, bool all = false)
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
@@ -80,13 +174,188 @@ namespace Narije.Infrastructure.Repositories
 
             string xlsxPath = null;
             Recipt recipt = null;
+
             try
             {
                 string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/templates/ReciptTemplate.xlsx");
                 using var package = new ExcelPackage(new FileInfo(templatePath));
                 var ws = package.Workbook.Worksheets[0];
 
-                // Fetch customer (optional)
+                // --- Parse customerIds string ---
+                List<int> customerIdList = new List<int>();
+                if (!string.IsNullOrWhiteSpace(customerIds) && !all)
+                {
+                    customerIdList = customerIds
+                        .Split(",", StringSplitOptions.RemoveEmptyEntries)
+                        .Select(id => int.Parse(id.Trim()))
+                        .ToList();
+                }
+
+                // --- Determine customers to include ---
+                List<Customer> customers;
+                if (all)
+                {
+                    var customerIdsForDay = await _NarijeDBContext.vReserves
+                        .Where(r => r.DateTime.Date == date.Date && r.Num > 0 && r.State != (int)EnumReserveState.perdict)
+                        .Select(r => r.CustomerId)
+                        .Distinct()
+                        .ToListAsync();
+
+                    customers = await _NarijeDBContext.Customers
+                        .Where(c => customerIdsForDay.Contains(c.Id))
+                        .ToListAsync();
+                }
+                else
+                {
+                    customers = await _NarijeDBContext.Customers
+                        .Where(c => customerIdList.Contains(c.Id))
+                        .ToListAsync();
+                }
+
+                var persianCalendar = new PersianCalendar();
+                string shamsiDate = string.Format("{0:0000}/{1:00}/{2:00}",
+                    persianCalendar.GetYear(date),
+                    persianCalendar.GetMonth(date),
+                    persianCalendar.GetDayOfMonth(date));
+
+                int currentRow = 1; // start writing rows
+
+                foreach (var customer in customers)
+                {
+                    // Fetch parent title if exists
+                    string parentTitle = null;
+                    if (customer?.ParentId.HasValue == true)
+                    {
+                        parentTitle = await _NarijeDBContext.Customers
+                            .Where(p => p.Id == customer.ParentId.Value)
+                            .Select(p => p.Title)
+                            .FirstOrDefaultAsync();
+                    }
+
+                    var customerFullTitle = (string.IsNullOrWhiteSpace(parentTitle)
+                        ? customer.Title
+                        : $"{customer.Title} - {parentTitle}");
+
+                    // Header for this customer
+                    ws.Cells[currentRow, 1].Value = $"مشتری: {customerFullTitle}";
+                    ws.Cells[currentRow, 7].Value = shamsiDate;
+                    currentRow += 2;
+
+                    // Query reserves
+                    var reserveRecords = await _NarijeDBContext.vReserves
+                        .Where(r => r.DateTime.Date == date.Date && r.CustomerId == customer.Id && r.Num > 0 && r.State != (int)EnumReserveState.perdict)
+                        .OrderBy(r => r.FoodTitle)
+                        .ToListAsync();
+
+                    var reserves = reserveRecords
+                        .GroupBy(r => new { r.FoodId, r.FoodTitle, r.FoodArpaNumber })
+                        .Select(g => new
+                        {
+                            FoodCode = g.Key.FoodArpaNumber ?? g.Key.FoodId.ToString(),
+                            FoodTitle = g.Key.FoodTitle,
+                            Quantity = g.Sum(x => x.Num)
+                        })
+                        .OrderBy(x => x.FoodTitle)
+                        .ToList();
+
+                    int startRow = currentRow;
+
+                    foreach (var item in reserves)
+                    {
+                        ws.Cells[currentRow, 1].Value = currentRow - startRow + 1; // ردیف
+                        ws.Cells[currentRow, 2].Value = item.FoodCode;
+                        ws.Cells[currentRow, 3].Value = item.FoodTitle;
+                        ws.Cells[currentRow, 5].Value = item.Quantity;
+                        ws.Cells[currentRow, 6].Value = string.Empty;
+                        currentRow++;
+                    }
+
+                    // Empty row spacing
+                    currentRow++;
+                }
+
+                // --- Create Recipt record for this combined file ---
+                var identity = _IHttpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
+                if ((identity is null) || (identity.Claims.Count() == 0))
+                    throw new Exception("دسترسی ندارید");
+                var userId = Int32.Parse(identity.FindFirst("Id").Value);
+
+                var allReserveIds = await _NarijeDBContext.vReserves
+                    .Where(r => r.DateTime.Date == date.Date && r.Num > 0 && r.State != (int)EnumReserveState.perdict
+                        && (all || customerIdList.Contains(r.CustomerId)))
+                    .Select(r => r.Id)
+                    .Distinct()
+                    .ToListAsync();
+
+                recipt = new Recipt
+                {
+                    UserId = userId,
+                    CreatedAt = DateTime.Now,
+                    CustomerId = null,
+                    CustomerParentId = null,
+                    ReserveIds = string.Join(",", allReserveIds),
+                    FileType = (int)EnumFileType.xlsx,
+                    FileName = string.Empty
+                };
+
+                await _NarijeDBContext.Recipt.AddAsync(recipt);
+                await _NarijeDBContext.SaveChangesAsync();
+
+                recipt.FileName = $"SP_{recipt.Id}";
+                _NarijeDBContext.Recipt.Update(recipt);
+                await _NarijeDBContext.SaveChangesAsync();
+
+                // Document code
+                ws.Cells["G1"].Value = $"کد سند: SP-F-ST-010-00";
+
+                var excelBytes = package.GetAsByteArray();
+
+                // Save file
+                var basePath = "/data/recipts";
+                if (!Directory.Exists(basePath))
+                    Directory.CreateDirectory(basePath);
+                xlsxPath = Path.Combine(basePath, $"{recipt.FileName}.xlsx");
+                await File.WriteAllBytesAsync(xlsxPath, excelBytes);
+
+                await transaction.CommitAsync();
+
+                return new FileContentResult(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                {
+                    FileDownloadName = $"{recipt.FileName}.xlsx"
+                };
+            }
+            catch
+            {
+                try { await transaction.RollbackAsync(); } catch { }
+
+                if (!string.IsNullOrWhiteSpace(xlsxPath) && File.Exists(xlsxPath))
+                {
+                    try { File.Delete(xlsxPath); } catch { }
+                }
+
+                throw;
+            }
+        }
+        #endregion
+
+
+        #region ExportPdfRecipt
+        public async Task<FileContentResult> ExportPdfRecipt(int? customerId, DateTime date)
+        {
+            using var transaction = await _NarijeDBContext.Database.BeginTransactionAsync();
+
+            string pdfPath = null;
+            string tempXlsxPath = null;
+            Recipt recipt = null;
+
+            try
+            {
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+                string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/templates/ReciptTemplate.xlsx");
+                using var package = new ExcelPackage(new FileInfo(templatePath));
+                var ws = package.Workbook.Worksheets[0];
+
                 Customer customer = null;
                 string parentTitle = null;
                 if (customerId.HasValue)
@@ -105,26 +374,26 @@ namespace Narije.Infrastructure.Repositories
                     ? string.Empty
                     : (string.IsNullOrWhiteSpace(parentTitle) ? customer.Title : $"{customer.Title} - {parentTitle}");
 
-                // Map header cells (empty if no customer)
-                ws.Cells["B2"].Value = customerFullTitle;                          // نام مشتری
-                ws.Cells["D2"].Value = customer?.DeliverFullName ?? string.Empty;   // نام تحویل گیرنده
-                ws.Cells["G2"].Value = customer?.Address ?? string.Empty;           // آدرس
-                ws.Cells["B3"].Value = customer?.Code ?? string.Empty;              // کد مشتری
-                ws.Cells["D3"].Value = customer?.DeliverPhoneNumber ?? string.Empty;// شماره تماس تحویل گیرنده
-                ws.Cells["G3"].Value = date.ToString("yyyy/MM/dd");               // تاریخ
+                var persianCalendar = new PersianCalendar();
+                string shamsiDate = string.Format("{0:0000}/{1:00}/{2:00}",
+                    persianCalendar.GetYear(date),
+                    persianCalendar.GetMonth(date),
+                    persianCalendar.GetDayOfMonth(date));
 
-                // Query reserves for the given date and optional customer
+
+                ws.Cells["B2"].Value = customerFullTitle;
+                ws.Cells["D2"].Value = customer?.DeliverFullName ?? string.Empty;
+                ws.Cells["G2"].Value = customer?.Address ?? string.Empty;
+                ws.Cells["B3"].Value = customer?.Code ?? string.Empty;
+                ws.Cells["D3"].Value = customer?.DeliverPhoneNumber ?? string.Empty;
+                ws.Cells["G3"].Value = shamsiDate;
+
                 var reserveQuery = _NarijeDBContext.vReserves
                     .Where(r => r.DateTime.Date == date.Date && r.Num > 0 && r.State != (int)EnumReserveState.perdict);
                 if (customerId.HasValue)
-                {
                     reserveQuery = reserveQuery.Where(r => r.CustomerId == customerId.Value);
-                }
 
-                var reserveRecords = await reserveQuery
-                    .OrderBy(r => r.FoodTitle)
-                    .ToListAsync();
-
+                var reserveRecords = await reserveQuery.OrderBy(r => r.FoodTitle).ToListAsync();
                 var reserveIds = reserveRecords.Select(r => r.Id).Distinct().ToList();
 
                 var reserves = reserveRecords
@@ -173,144 +442,22 @@ namespace Narije.Infrastructure.Repositories
                 }
 
                 int row = startRow;
-
                 foreach (var item in reserves)
                 {
-                    ws.Cells[row, 1].Value = row - startRow + 1;      // ردیف
-                    ws.Cells[row, 2].Value = item.FoodCode;            // کد کالا
-                    ws.Cells[row, 3].Value = item.FoodTitle;           // نام کالا (C:D merged)
-                    ws.Cells[row, 5].Value = item.Quantity;            // مقدار/تعداد
-                    ws.Cells[row, 6].Value = string.Empty;             // توضیحات (F:G merged)
+                    ws.Cells[row, 1].Value = row - startRow + 1;
+                    ws.Cells[row, 2].Value = item.FoodCode;
+                    ws.Cells[row, 3].Value = item.FoodTitle;
+                    ws.Cells[row, 5].Value = item.Quantity;
+                    ws.Cells[row, 6].Value = string.Empty;
                     row++;
                 }
 
-                // Create Recipt record before finalizing to include file name in the sheet
                 var identity = _IHttpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
                 if ((identity is null) || (identity.Claims.Count() == 0))
                     throw new Exception("دسترسی ندارید");
                 var userId = Int32.Parse(identity.FindFirst("Id").Value);
 
-                int? customerParentId = null;
-                if (customer?.ParentId.HasValue == true)
-                    customerParentId = customer.ParentId.Value;
-
-                recipt = new Recipt
-                {
-                    UserId = userId,
-                    CreatedAt = DateTime.Now,
-                    CustomerId = customerId,
-                    CustomerParentId = customerParentId,
-                    ReserveIds = string.Join(",", reserveIds),
-                    FileType = (int)EnumFileType.xlsx,
-                    FileName = string.Empty
-                };
-
-                await _NarijeDBContext.Recipt.AddAsync(recipt);
-                await _NarijeDBContext.SaveChangesAsync();
-
-                recipt.FileName = $"SP_{recipt.Id}";
-                _NarijeDBContext.Recipt.Update(recipt);
-                await _NarijeDBContext.SaveChangesAsync();
-
-                // Put document code into the template header G1
-                ws.Cells["G1"].Value = $"کد سند: {recipt.FileName}";
-
-                var excelBytes = package.GetAsByteArray();
-
-                // Persist physical file under /data/recipts
-                var basePath = "/data/recipts";
-                if (!Directory.Exists(basePath))
-                    Directory.CreateDirectory(basePath);
-                xlsxPath = Path.Combine(basePath, $"{recipt.FileName}.xlsx");
-                await File.WriteAllBytesAsync(xlsxPath, excelBytes);
-
-                await transaction.CommitAsync();
-
-                return new FileContentResult(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-                {
-                    FileDownloadName = $"{recipt.FileName}.xlsx"
-                };
-            }
-            catch
-            {
-                try { await transaction.RollbackAsync(); } catch { }
-
-                if (!string.IsNullOrWhiteSpace(xlsxPath) && File.Exists(xlsxPath))
-                {
-                    try { File.Delete(xlsxPath); } catch { }
-                }
-
-                throw;
-            }
-        }
-
-        #endregion
-
-
-        #region ExportPdfRecipt
-        public async Task<FileContentResult> ExportPdfRecipt(int? customerId, DateTime date)
-        {
-            // Set QuestPDF license to avoid validation exception
-            QuestPDF.Settings.License = LicenseType.Community;
-
-            using var transaction = await _NarijeDBContext.Database.BeginTransactionAsync();
-
-            string pdfPath = null;
-            Recipt recipt = null;
-            try
-            {
-                // Fetch customer (optional)
-                Customer customer = null;
-                string parentTitle = null;
-                if (customerId.HasValue)
-                {
-                    customer = await _NarijeDBContext.Customers.FirstOrDefaultAsync(c => c.Id == customerId.Value);
-                    if (customer?.ParentId.HasValue == true)
-                    {
-                        parentTitle = await _NarijeDBContext.Customers
-                            .Where(p => p.Id == customer.ParentId.Value)
-                            .Select(p => p.Title)
-                            .FirstOrDefaultAsync();
-                    }
-                }
-                var customerFullTitle = (customer == null)
-                    ? string.Empty
-                    : (string.IsNullOrWhiteSpace(parentTitle) ? customer.Title : $"{customer.Title} - {parentTitle}");
-
-                // Use the same data as Excel for identical content
-                var reserveQuery = _NarijeDBContext.vReserves
-                    .Where(r => r.DateTime.Date == date.Date && r.Num > 0 && r.State != (int)EnumReserveState.perdict);
-                if (customerId.HasValue)
-                {
-                    reserveQuery = reserveQuery.Where(r => r.CustomerId == customerId.Value);
-                }
-
-                var reserveRecords = await reserveQuery
-                    .OrderBy(r => r.FoodTitle)
-                    .ToListAsync();
-
-                var reserveIds = reserveRecords.Select(r => r.Id).Distinct().ToList();
-
-                var reserves = reserveRecords
-                    .GroupBy(r => new { r.FoodId, r.FoodTitle, r.FoodArpaNumber })
-                    .Select(g => new
-                    {
-                        FoodCode = g.Key.FoodArpaNumber ?? g.Key.FoodId.ToString(),
-                        FoodTitle = g.Key.FoodTitle,
-                        Quantity = g.Sum(x => x.Num)
-                    })
-                    .OrderBy(x => x.FoodTitle)
-                    .ToList();
-
-                // Create Recipt record for PDF
-                var identity = _IHttpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
-                if ((identity is null) || (identity.Claims.Count() == 0))
-                    throw new Exception("دسترسی ندارید");
-                var userId = Int32.Parse(identity.FindFirst("Id").Value);
-
-                int? customerParentId = null;
-                if (customer?.ParentId.HasValue == true)
-                    customerParentId = customer.ParentId.Value;
+                int? customerParentId = customer?.ParentId;
 
                 recipt = new Recipt
                 {
@@ -330,97 +477,63 @@ namespace Narije.Infrastructure.Repositories
                 _NarijeDBContext.Recipt.Update(recipt);
                 await _NarijeDBContext.SaveChangesAsync();
 
-                // Build PDF using QuestPDF with the same header and table columns
-                var pdfBytes = Document.Create(document =>
-                {
-                    document.Page(page =>
-                    {
-                        page.Size(PageSizes.A4);
-                        page.Margin(20);
-                        page.DefaultTextStyle(x => x.FontSize(10));
+                ws.Cells["G1"].Value = $"کد سند: SP-F-ST-010-00";
 
-                        page.Content().Column(col =>
-                        {
-                            col.Spacing(8);
-                            col.Item().AlignCenter().Text("رسید تحویل محصول").FontSize(16).SemiBold();
-                            col.Item().Row(r =>
-                            {
-                                r.RelativeItem().Text(text => { text.Span("کد سند: "); text.Span(recipt.FileName); });
-                            });
-                            col.Item().Row(r =>
-                            {
-                                r.RelativeItem().Text(text => { text.Span("نام مشتری: "); text.Span(customerFullTitle); });
-                                r.RelativeItem().Text(text => { text.Span("کد مشتری: "); text.Span(customer?.Code ?? string.Empty); });
-                            });
-                            col.Item().Row(r =>
-                            {
-                                r.RelativeItem().Text(text => { text.Span("نام تحویل گیرنده: "); text.Span(customer?.DeliverFullName ?? string.Empty); });
-                                r.RelativeItem().Text(text => { text.Span("شماره تماس تحویل گیرنده: "); text.Span(customer?.DeliverPhoneNumber ?? string.Empty); });
-                            });
-                            col.Item().Row(r =>
-                            {
-                                r.RelativeItem().Text(text => { text.Span("آدرس: "); text.Span(customer?.Address ?? string.Empty); });
-                                r.RelativeItem().Text(text => { text.Span("تاریخ: "); text.Span(date.ToString("yyyy/MM/dd")); });
-                            });
-
-                            col.Item().Text("مشخصات موادغذایی ارسالی").SemiBold();
-                            col.Item().Table(table =>
-                            {
-                                table.ColumnsDefinition(columns =>
-                                {
-                                    columns.RelativeColumn(1);   // ردیف
-                                    columns.RelativeColumn(2);   // کد کالا
-                                    columns.RelativeColumn(4);   // نام کالا
-                                    columns.RelativeColumn(2);   // مقدار/تعداد
-                                    columns.RelativeColumn(4);   // توضیحات
-                                });
-
-                                table.Header(header =>
-                                {
-                                    header.Cell().Text("ردیف").SemiBold();
-                                    header.Cell().Text("کد کالا").SemiBold();
-                                    header.Cell().Text("نام کالا").SemiBold();
-                                    header.Cell().Text("مقدار/ تعداد").SemiBold();
-                                    header.Cell().Text("توضیحات").SemiBold();
-                                });
-
-                                int index = 1;
-                                foreach (var item in reserves)
-                                {
-                                    table.Cell().Text(index.ToString());
-                                    table.Cell().Text(item.FoodCode);
-                                    table.Cell().Text(item.FoodTitle);
-                                    table.Cell().Text(item.Quantity.ToString());
-                                    table.Cell().Text("");
-                                    index++;
-                                }
-                            });
-                        });
-                    });
-                }).GeneratePdf();
-
-                // Persist physical file under /data/recipts
                 var basePath = "/data/recipts";
-                if (!Directory.Exists(basePath))
-                    Directory.CreateDirectory(basePath);
+                Directory.CreateDirectory(basePath);
+                tempXlsxPath = Path.Combine(basePath, $"{recipt.FileName}.xlsx");
+                await File.WriteAllBytesAsync(tempXlsxPath, package.GetAsByteArray());
+
+                var libreOfficePathCandidates = new[]
+                {
+            "/usr/bin/soffice",
+            "/usr/lib/libreoffice/program/soffice",
+            @"C:\Program Files\LibreOffice\program\soffice.exe",
+            @"C:\Program Files (x86)\LibreOffice\program\soffice.exe"
+        };
+                var sofficePath = libreOfficePathCandidates.FirstOrDefault(File.Exists);
+                if (string.IsNullOrEmpty(sofficePath))
+                    throw new Exception("LibreOffice (soffice) is not installed in the runtime environment.");
+
+                var process = new System.Diagnostics.Process();
+                process.StartInfo.FileName = sofficePath;
+                process.StartInfo.Arguments = $"--headless --nologo --convert-to pdf:calc_pdf_Export --outdir \"{basePath}\" \"{tempXlsxPath}\"";
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = true;
+                process.Start();
+                string stdOut = await process.StandardOutput.ReadToEndAsync();
+                string stdErr = await process.StandardError.ReadToEndAsync();
+                process.WaitForExit();
+
+                if (process.ExitCode != 0)
+                    throw new Exception($"LibreOffice conversion failed. ExitCode={process.ExitCode}. Error={stdErr}. Output={stdOut}");
+
                 pdfPath = Path.Combine(basePath, $"{recipt.FileName}.pdf");
-                await File.WriteAllBytesAsync(pdfPath, pdfBytes);
+                if (!File.Exists(pdfPath))
+                {
+                    var altPdf = Path.Combine(basePath, $"{recipt.FileName}.PDF");
+                    if (File.Exists(altPdf)) pdfPath = altPdf;
+                    else throw new Exception($"Expected PDF not found after conversion. StdErr={stdErr}");
+                }
+
+                try { if (File.Exists(tempXlsxPath)) File.Delete(tempXlsxPath); } catch { }
 
                 await transaction.CommitAsync();
 
+                var pdfBytes = await File.ReadAllBytesAsync(pdfPath);
                 return new FileContentResult(pdfBytes, "application/pdf")
                 {
                     FileDownloadName = $"{recipt.FileName}.pdf"
                 };
             }
-            catch
+            catch(Exception ex)
             {
                 try { await transaction.RollbackAsync(); } catch { }
 
-                if (!string.IsNullOrWhiteSpace(pdfPath) && File.Exists(pdfPath))
-                {
-                    try { File.Delete(pdfPath); } catch { }
-                }
+                if (!string.IsNullOrWhiteSpace(pdfPath) && File.Exists(pdfPath)) { try { File.Delete(pdfPath); } catch { } }
+                if (!string.IsNullOrWhiteSpace(tempXlsxPath) && File.Exists(tempXlsxPath)) { try { File.Delete(tempXlsxPath); } catch { } }
 
                 throw;
             }

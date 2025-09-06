@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Narije.Api.Helpers;
+using Narije.Core.DTOs.Public;
 using Narije.Core.Interfaces;
 using Narije.Infrastructure.Repositories;
 using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
-using Narije.Core.DTOs.Public;
 
 namespace Narije.Api.Controllers.Admin
 {
@@ -67,6 +69,25 @@ namespace Narije.Api.Controllers.Admin
             }
         }
 
+
+        /// <summary>
+        /// یرسی فعال بودن سفارش روز برای مشتری
+        /// </summary>
+        [HttpGet]
+        [Route("ActiveReserve")]
+        [MapToApiVersion("2")]
+        public async Task<IActionResult> ActiveReserve(string customerIds, DateTime date)
+        {
+            try
+            {
+                return this.ServiceReturn(await _IRecipts.ActiveReserve(customerIds: customerIds, date: date));
+            }
+            catch (Exception Ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
         /// <summary>
         /// خروجی رسیپت اکسل بر اساس تاریخ و مشتری (اختیاری)
         /// </summary>
@@ -76,17 +97,30 @@ namespace Narije.Api.Controllers.Admin
         [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> ExportRecipt(int? customerId, DateTime date)
+        public async Task<IActionResult> ExportRecipt(string customerIds, DateTime date, bool all = false)
         {
             try
             {
-                var fileResult = await _IRecipts.ExportRecipt(customerId: customerId, date: date);
+                var fileResult = await _IRecipts.ExportRecipt(customerIds: customerIds, date: date , all: all);
                 return fileResult;
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                return BadRequest(new ApiErrorResponse(_Code: StatusCodes.Status400BadRequest, _Message: Ex.Message));
+                var sb = new StringBuilder();
+                while (ex != null)
+                {
+                    sb.AppendLine($"Message: {ex.Message}");
+                    sb.AppendLine($"StackTrace: {ex.StackTrace}");
+                    ex = ex.InnerException;
+                }
+                string fullError = sb.ToString();
+
+                return BadRequest(new ApiErrorResponse(
+                    _Code: StatusCodes.Status400BadRequest,
+                    _Message: fullError
+                ));
             }
+
         }
 
         /// <summary>
@@ -95,7 +129,6 @@ namespace Narije.Api.Controllers.Admin
         [HttpGet]
         [Route("ExportPdfRecipt")]
         [MapToApiVersion("2")]
-        [Produces("application/pdf")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ExportPdfRecipt(int? customerId, DateTime date)
@@ -105,9 +138,21 @@ namespace Narije.Api.Controllers.Admin
                 var fileResult = await _IRecipts.ExportPdfRecipt(customerId: customerId, date: date);
                 return fileResult;
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                return BadRequest(new ApiErrorResponse(_Code: StatusCodes.Status400BadRequest, _Message: Ex.Message));
+                var sb = new StringBuilder();
+                while (ex != null)
+                {
+                    sb.AppendLine($"Message: {ex.Message}");
+                    sb.AppendLine($"StackTrace: {ex.StackTrace}");
+                    ex = ex.InnerException;
+                }
+                string fullError = sb.ToString();
+
+                return BadRequest(new ApiErrorResponse(
+                    _Code: StatusCodes.Status400BadRequest,
+                    _Message: fullError
+                ));
             }
         }
 
