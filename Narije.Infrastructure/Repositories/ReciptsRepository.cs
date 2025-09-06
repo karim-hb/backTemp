@@ -445,7 +445,7 @@ namespace Narije.Infrastructure.Repositories
 
 
         #region ExportPdfRecipt
-        public async Task<FileContentResult> ExportPdfRecipt(int? customerId, DateTime date)
+        public async Task<FileContentResult> ExportPdfRecipt(string customerIds, DateTime date, bool all = false)
         {
             using var transaction = await _NarijeDBContext.Database.BeginTransactionAsync();
 
@@ -456,28 +456,52 @@ namespace Narije.Infrastructure.Repositories
             try
             {
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
                 string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/templates/ReciptTemplate.xlsx");
                 using var package = new ExcelPackage(new FileInfo(templatePath));
-                var ws = package.Workbook.Worksheets[0];
+                var wsTemplate = package.Workbook.Worksheets[0];
+                var wsResult = package.Workbook.Worksheets.Add("Result");
 
-                Customer customer = null;
-                string parentTitle = null;
-                if (customerId.HasValue)
+                // Match column widths and RTL
+                for (int col = 1; col <= 7; col++)
                 {
-                    customer = await _NarijeDBContext.Customers.FirstOrDefaultAsync(c => c.Id == customerId.Value);
-                    if (customer?.ParentId.HasValue == true)
+                    wsResult.Column(col).Width = wsTemplate.Column(col).Width;
+                }
+                wsResult.View.RightToLeft = wsTemplate.View.RightToLeft;
+
+                // Parse customerIds / all
+                List<int> customerIdList = new List<int>();
+                if (!string.IsNullOrWhiteSpace(customerIds) && !all)
+                {
+                    foreach (var idStr in customerIds.Split(',', StringSplitOptions.RemoveEmptyEntries))
                     {
-                        parentTitle = await _NarijeDBContext.Customers
-                            .Where(p => p.Id == customer.ParentId.Value)
-                            .Select(p => p.Title)
-                            .FirstOrDefaultAsync();
+                        var trimmed = idStr.Trim();
+                        if (int.TryParse(trimmed, out var id))
+                            customerIdList.Add(id);
                     }
                 }
 
-                var customerFullTitle = (customer == null)
-                    ? string.Empty
-                    : (string.IsNullOrWhiteSpace(parentTitle) ? customer.Title : $"{customer.Title} - {parentTitle}");
+                List<Customer> customers;
+                if (all)
+                {
+                    var customerIdsForDay = await _NarijeDBContext.vReserves
+                        .Where(r => r.DateTime.Date == date.Date && r.Num > 0 && r.State != (int)EnumReserveState.perdict)
+                        .Select(r => r.CustomerId)
+                        .Distinct()
+                        .ToListAsync();
+
+                    customers = await _NarijeDBContext.Customers
+                        .Where(c => customerIdsForDay.Contains(c.Id))
+                        .OrderBy(c => c.Title)
+                        .ToListAsync();
+                }
+                else
+                {
+                    var customersQuery = await _NarijeDBContext.Customers
+                        .Where(c => customerIdList.Contains(c.Id))
+                        .ToListAsync();
+                    var map = customersQuery.ToDictionary(c => c.Id, c => c);
+                    customers = customerIdList.Where(id => map.ContainsKey(id)).Select(id => map[id]).ToList();
+                }
 
                 var persianCalendar = new PersianCalendar();
                 string shamsiDate = string.Format("{0:0000}/{1:00}/{2:00}",
@@ -485,84 +509,137 @@ namespace Narije.Infrastructure.Repositories
                     persianCalendar.GetMonth(date),
                     persianCalendar.GetDayOfMonth(date));
 
-
-                ws.Cells["B2"].Value = customerFullTitle;
-                ws.Cells["D2"].Value = customer?.DeliverFullName ?? string.Empty;
-                ws.Cells["G2"].Value = customer?.Address ?? string.Empty;
-                ws.Cells["B3"].Value = customer?.Code ?? string.Empty;
-                ws.Cells["D3"].Value = customer?.DeliverPhoneNumber ?? string.Empty;
-                ws.Cells["G3"].Value = shamsiDate;
-
-                var reserveQuery = _NarijeDBContext.vReserves
-                    .Where(r => r.DateTime.Date == date.Date && r.Num > 0 && r.State != (int)EnumReserveState.perdict);
-                if (customerId.HasValue)
-                    reserveQuery = reserveQuery.Where(r => r.CustomerId == customerId.Value);
-
-                var reserveRecords = await reserveQuery.OrderBy(r => r.FoodTitle).ToListAsync();
-                var reserveIds = reserveRecords.Select(r => r.Id).Distinct().ToList();
-
-                var reserves = reserveRecords
-                    .GroupBy(r => new { r.FoodId, r.FoodTitle, r.FoodArpaNumber })
-                    .Select(g => new
-                    {
-                        FoodCode = g.Key.FoodArpaNumber ?? g.Key.FoodId.ToString(),
-                        FoodTitle = g.Key.FoodTitle,
-                        Quantity = g.Sum(x => x.Num)
-                    })
-                    .OrderBy(x => x.FoodTitle)
-                    .ToList();
-
-                int startRow = 6;
-                int templateRowCount = 6;
-                int nextSectionRow = 12;
-
-                if (reserves.Count > templateRowCount)
+                int currentRow = 1;
+                var generatedSheetNames = new List<string>();
+                foreach (var customer in customers)
                 {
-                    int extraRows = reserves.Count - templateRowCount;
-                    ws.InsertRow(nextSectionRow, extraRows);
+                    var ws = package.Workbook.Worksheets.Add($"C_{customer.Id}", wsTemplate);
 
-                    int styleA = ws.Cells[11, 1].StyleID;
-                    int styleB = ws.Cells[11, 2].StyleID;
-                    int styleC = ws.Cells[11, 3].StyleID;
-                    int styleD = ws.Cells[11, 4].StyleID;
-                    int styleE = ws.Cells[11, 5].StyleID;
-                    int styleF = ws.Cells[11, 6].StyleID;
-                    int styleG = ws.Cells[11, 7].StyleID;
-                    double rowHeight = ws.Row(11).Height;
-
-                    for (int r = nextSectionRow; r < nextSectionRow + extraRows; r++)
+                    string parentTitle = null;
+                    if (customer?.ParentId.HasValue == true)
                     {
-                        ws.Row(r).Height = rowHeight;
-                        ws.Cells[r, 1].StyleID = styleA;
-                        ws.Cells[r, 2].StyleID = styleB;
-                        ws.Cells[r, 3].StyleID = styleC;
-                        ws.Cells[r, 4].StyleID = styleD;
-                        ws.Cells[r, 5].StyleID = styleE;
-                        ws.Cells[r, 6].StyleID = styleF;
-                        ws.Cells[r, 7].StyleID = styleG;
-
-                        ws.Cells[r, 3, r, 4].Merge = true;
-                        ws.Cells[r, 6, r, 7].Merge = true;
+                        parentTitle = await _NarijeDBContext.Customers
+                            .Where(p => p.Id == customer.ParentId.Value)
+                            .Select(p => p.Title)
+                            .FirstOrDefaultAsync();
                     }
-                }
 
-                int row = startRow;
-                foreach (var item in reserves)
-                {
-                    ws.Cells[row, 1].Value = row - startRow + 1;
-                    ws.Cells[row, 2].Value = item.FoodCode;
-                    ws.Cells[row, 3].Value = item.FoodTitle;
-                    ws.Cells[row, 5].Value = item.Quantity;
-                    ws.Cells[row, 6].Value = string.Empty;
+                    var customerFullTitle = (string.IsNullOrWhiteSpace(parentTitle)
+                        ? customer.Title
+                        : $"{customer.Title} - {parentTitle}");
 
-                    // Make A..E bold
-                    ws.Cells[row, 1, row, 5].Style.Font.Bold = true;
+                    ws.Cells["B2"].Value = customerFullTitle;
+                    ws.Cells["D2"].Value = customer?.DeliverFullName ?? string.Empty;
+                    ws.Cells["G2"].Value = customer?.Address ?? string.Empty;
+                    ws.Cells["B3"].Value = customer?.Code ?? string.Empty;
+                    ws.Cells["D3"].Value = customer?.DeliverPhoneNumber ?? string.Empty;
+                    ws.Cells["G3"].Value = shamsiDate;
 
-                    // Make F..G bold and clear gray fill
-                    ws.Cells[row, 6].Style.Font.Bold = true;
-                    ws.Cells[row, 7].Style.Font.Bold = true;
-                    ws.Cells[row, 6, row, 7].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.None;
-                    row++;
+                    var reserveRecords = await _NarijeDBContext.vReserves
+                        .Where(r => r.DateTime.Date == date.Date && r.CustomerId == customer.Id && r.Num > 0 && r.State != (int)EnumReserveState.perdict)
+                        .OrderBy(r => r.FoodTitle)
+                        .ToListAsync();
+
+                    var reserves = reserveRecords
+                        .GroupBy(r => new { r.FoodId, r.FoodTitle, r.FoodArpaNumber })
+                        .Select(g => new
+                        {
+                            FoodCode = g.Key.FoodArpaNumber ?? g.Key.FoodId.ToString(),
+                            FoodTitle = g.Key.FoodTitle,
+                            Quantity = g.Sum(x => x.Num)
+                        })
+                        .OrderBy(x => x.FoodTitle)
+                        .ToList();
+
+                    int startRow = 6;
+                    int templateRowCount = 6;
+                    int nextSectionRow = 12;
+
+                    if (reserves.Count > templateRowCount)
+                    {
+                        int extraRows = reserves.Count - templateRowCount;
+                        ws.InsertRow(nextSectionRow, extraRows);
+
+                        int styleA = ws.Cells[11, 1].StyleID;
+                        int styleB = ws.Cells[11, 2].StyleID;
+                        int styleC = ws.Cells[11, 3].StyleID;
+                        int styleD = ws.Cells[11, 4].StyleID;
+                        int styleE = ws.Cells[11, 5].StyleID;
+                        int styleF = ws.Cells[11, 6].StyleID;
+                        int styleG = ws.Cells[11, 7].StyleID;
+                        double rowHeight = ws.Row(11).Height;
+
+                        for (int r = nextSectionRow; r < nextSectionRow + extraRows; r++)
+                        {
+                            ws.Row(r).Height = rowHeight;
+                            ws.Cells[r, 1].StyleID = styleA;
+                            ws.Cells[r, 2].StyleID = styleB;
+                            ws.Cells[r, 3].StyleID = styleC;
+                            ws.Cells[r, 4].StyleID = styleD;
+                            ws.Cells[r, 5].StyleID = styleE;
+                            ws.Cells[r, 6].StyleID = styleF;
+                            ws.Cells[r, 7].StyleID = styleG;
+
+                            ws.Cells[r, 3, r, 4].Merge = true;
+                            ws.Cells[r, 6, r, 7].Merge = true;
+                        }
+                    }
+
+                    int row = startRow;
+                    foreach (var item in reserves)
+                    {
+                        ws.Cells[row, 1].Value = row - startRow + 1;
+                        ws.Cells[row, 2].Value = item.FoodCode;
+                        ws.Cells[row, 3].Value = item.FoodTitle;
+                        ws.Cells[row, 5].Value = item.Quantity;
+                        ws.Cells[row, 6].Value = string.Empty;
+
+                        // Make A..E bold
+                        ws.Cells[row, 1, row, 5].Style.Font.Bold = true;
+
+                        // Make F..G bold and clear gray fill
+                        ws.Cells[row, 6].Style.Font.Bold = true;
+                        ws.Cells[row, 7].Style.Font.Bold = true;
+                        ws.Cells[row, 6, row, 7].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.None;
+                        row++;
+                    }
+
+                    ws.Cells["G1"].Value = $"کد سند: SP-F-ST-010-00";
+
+                    // Append to result sheet (copy only A..G)
+                    if (ws.Dimension != null)
+                    {
+                        int maxRow = ws.Dimension.End.Row;
+                        var source = ws.Cells[1, 1, maxRow, 7];
+                        var destination = wsResult.Cells[currentRow, 1];
+                        source.Copy(destination);
+
+                        // Copy row heights and merges within A..G
+                        for (int i = 0; i < maxRow; i++)
+                        {
+                            double h = ws.Row(i + 1).Height;
+                            if (h > 0)
+                                wsResult.Row(currentRow + i).Height = h;
+                        }
+
+                        int rowOffset = currentRow - 1;
+                        int colOffset = 0;
+                        foreach (var mergedAddress in ws.MergedCells)
+                        {
+                            if (string.IsNullOrWhiteSpace(mergedAddress)) continue;
+                            var addr = new OfficeOpenXml.ExcelAddressBase(mergedAddress);
+                            if (addr.Start.Column > 7) continue;
+                            int nsr = addr.Start.Row + rowOffset;
+                            int nsc = addr.Start.Column + colOffset;
+                            int ner = addr.End.Row + rowOffset;
+                            int nec = Math.Min(addr.End.Column + colOffset, 7);
+                            wsResult.Cells[nsr, nsc, ner, nec].Merge = true;
+                        }
+
+                        currentRow += maxRow + 1;
+                    }
+
+                    generatedSheetNames.Add(ws.Name);
                 }
 
                 var identity = _IHttpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
@@ -576,9 +653,14 @@ namespace Narije.Infrastructure.Repositories
                 {
                     UserId = userId,
                     CreatedAt = DateTime.Now,
-                    CustomerId = customerId,
-                    CustomerParentId = customerParentId,
-                    ReserveIds = string.Join(",", reserveIds),
+                    CustomerId = null,
+                    CustomerParentId = null,
+                    ReserveIds = string.Join(",", await _NarijeDBContext.vReserves
+                        .Where(r => r.DateTime.Date == date.Date && r.Num > 0 && r.State != (int)EnumReserveState.perdict
+                            && (all || customerIdList.Contains(r.CustomerId)))
+                        .Select(r => r.Id)
+                        .Distinct()
+                        .ToListAsync()),
                     FileType = (int)EnumFileType.pdf,
                     FileName = string.Empty
                 };
@@ -590,7 +672,13 @@ namespace Narije.Infrastructure.Repositories
                 _NarijeDBContext.Recipt.Update(recipt);
                 await _NarijeDBContext.SaveChangesAsync();
 
-                ws.Cells["G1"].Value = $"کد سند: SP-F-ST-010-00";
+                // Remove intermediate sheets and template, keep only Result and export
+                foreach (var name in generatedSheetNames)
+                {
+                    var s = package.Workbook.Worksheets[name];
+                    if (s != null) package.Workbook.Worksheets.Delete(s);
+                }
+                package.Workbook.Worksheets.Delete(wsTemplate);
 
                 var basePath = "/data/recipts";
                 Directory.CreateDirectory(basePath);

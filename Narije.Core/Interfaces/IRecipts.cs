@@ -15,7 +15,7 @@ namespace Narije.Core.Interfaces
         Task<ApiResponse> GetAllAsync(int? page, int? limit);
         Task<ApiResponse> ActiveReserve(string customerIds, DateTime date);
         Task<FileContentResult> ExportRecipt(string customerIds, DateTime date, bool all = false);
-        Task<FileContentResult> ExportPdfRecipt(int? customerId, DateTime date);
+        Task<FileContentResult> ExportPdfRecipt(string customerIds, DateTime date, bool all = false);
 
         Task<ApiResponse> ExportAsync();
     }
