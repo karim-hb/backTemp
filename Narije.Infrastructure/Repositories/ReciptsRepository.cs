@@ -413,6 +413,17 @@ namespace Narije.Infrastructure.Repositories
                 }
                 package.Workbook.Worksheets.Delete(wsTemplate);
 
+                // Configure print settings for A4 and fit-to-width on Result sheet
+                // Ensure we only print the used area (A1..G{lastRow})
+                int lastRow = Math.Max(1, currentRow - 1);
+                wsResult.PrinterSettings.PaperSize = OfficeOpenXml.ePaperSize.A4;
+                wsResult.PrinterSettings.Orientation = wsTemplate.PrinterSettings.Orientation;
+                wsResult.PrinterSettings.FitToPage = true;
+                wsResult.PrinterSettings.FitToWidth = 1;
+                wsResult.PrinterSettings.FitToHeight = 0;
+                wsResult.PrinterSettings.HorizontalCentered = true;
+                wsResult.PrinterSettings.PrintArea = wsResult.Cells[1, 1, lastRow, 7];
+
                 var excelBytes = package.GetAsByteArray();
 
                 // Save file
