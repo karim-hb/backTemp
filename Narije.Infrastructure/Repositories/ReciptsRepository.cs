@@ -178,14 +178,15 @@ namespace Narije.Infrastructure.Repositories
             try
             {
                 string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/templates/ReciptTemplate.xlsx");
-                using var package = new ExcelPackage(new FileInfo(templatePath));
-                var wsTemplate = package.Workbook.Worksheets[0];
-                var ws = package.Workbook.Worksheets.Add("Result");
+                using var templatePackage = new ExcelPackage(new FileInfo(templatePath));
+                var wsTemplate = templatePackage.Workbook.Worksheets[0];
+                using var finalPackage = new ExcelPackage();
+                var wsResult = finalPackage.Workbook.Worksheets.Add("Result");
 
-                // Match column widths with the template
+                // Match column widths with the template on the result sheet
                 for (int col = 1; col <= 7; col++)
                 {
-                    ws.Column(col).Width = wsTemplate.Column(col).Width;
+                    wsResult.Column(col).Width = wsTemplate.Column(col).Width;
                 }
 
                 // --- Parse customerIds string ---
@@ -235,10 +236,8 @@ namespace Narije.Infrastructure.Repositories
 
                 foreach (var customer in customers)
                 {
-                    // Copy the whole template block (A1:G11) for each customer to preserve UI
-                    var templateStartRow = 1;
-                    var templateEndRow = 11; // inclusive
-                    wsTemplate.Cells[templateStartRow, 1, templateEndRow, 7].Copy(ws.Cells[currentRow, 1]);
+                    using var customerPackage = new ExcelPackage(new FileInfo(templatePath));
+                    var wsCustomer = customerPackage.Workbook.Worksheets[0];
 
                     // Fetch parent title if exists
                     string parentTitle = null;
@@ -254,16 +253,15 @@ namespace Narije.Infrastructure.Repositories
                         ? customer.Title
                         : $"{customer.Title} - {parentTitle}");
 
-                    // Fill header cells relative to the copied block
-                    ws.Cells[currentRow + 0, 7].Value = $"کد سند: SP-F-ST-010-00"; // G1
-                    ws.Cells[currentRow + 1, 2].Value = customerFullTitle;        // B2
-                    ws.Cells[currentRow + 1, 4].Value = customer?.DeliverFullName ?? string.Empty; // D2
-                    ws.Cells[currentRow + 1, 7].Value = customer?.Address ?? string.Empty;         // G2
-                    ws.Cells[currentRow + 2, 2].Value = customer?.Code ?? string.Empty;            // B3
-                    ws.Cells[currentRow + 2, 4].Value = customer?.DeliverPhoneNumber ?? string.Empty; // D3
-                    ws.Cells[currentRow + 2, 7].Value = shamsiDate;                                 // G3
+                    // Fill header cells (single-customer logic)
+                    wsCustomer.Cells["B2"].Value = customerFullTitle;
+                    wsCustomer.Cells["D2"].Value = customer?.DeliverFullName ?? string.Empty;
+                    wsCustomer.Cells["G2"].Value = customer?.Address ?? string.Empty;
+                    wsCustomer.Cells["B3"].Value = customer?.Code ?? string.Empty;
+                    wsCustomer.Cells["D3"].Value = customer?.DeliverPhoneNumber ?? string.Empty;
+                    wsCustomer.Cells["G3"].Value = shamsiDate;
 
-                    // Query reserves
+                    // Query reserves for the given date and this customer
                     var reserveRecords = await _NarijeDBContext.vReserves
                         .Where(r => r.DateTime.Date == date.Date && r.CustomerId == customer.Id && r.Num > 0 && r.State != (int)EnumReserveState.perdict)
                         .OrderBy(r => r.FoodTitle)
@@ -280,70 +278,62 @@ namespace Narije.Infrastructure.Repositories
                         .OrderBy(x => x.FoodTitle)
                         .ToList();
 
-                    // Ensure merges for the 6 template item rows exist in this copied block
-                    for (int r = 0; r < 6; r++)
-                    {
-                        int rr = currentRow + 5 + r; // rows 6..11 of the block
-                        ws.Cells[rr, 3, rr, 4].Merge = true;
-                        ws.Cells[rr, 6, rr, 7].Merge = true;
-                    }
-
-                    // Write items within the copied template block
-                    int blockStartRow = currentRow;        // top of the copied template block
-                    int itemsStartRow = blockStartRow + 5; // template's original row 6
-                    int templateRowCount = 6;              // rows 6..11
-                    int nextSectionRow = blockStartRow + 11; // row after items block
+                    int startRow = 6;
+                    int templateRowCount = 6;
+                    int nextSectionRow = 12;
 
                     if (reserves.Count > templateRowCount)
                     {
                         int extraRows = reserves.Count - templateRowCount;
-                        ws.InsertRow(nextSectionRow, extraRows);
+                        wsCustomer.InsertRow(nextSectionRow, extraRows);
 
-                        // Copy styles from the last template item row within this block
-                        int styleRow = blockStartRow + 10; // original row 11
-                        int styleA = ws.Cells[styleRow, 1].StyleID;
-                        int styleB = ws.Cells[styleRow, 2].StyleID;
-                        int styleC = ws.Cells[styleRow, 3].StyleID;
-                        int styleD = ws.Cells[styleRow, 4].StyleID;
-                        int styleE = ws.Cells[styleRow, 5].StyleID;
-                        int styleF = ws.Cells[styleRow, 6].StyleID;
-                        int styleG = ws.Cells[styleRow, 7].StyleID;
-                        double rowHeight = ws.Row(styleRow).Height;
+                        int styleA = wsCustomer.Cells[11, 1].StyleID;
+                        int styleB = wsCustomer.Cells[11, 2].StyleID;
+                        int styleC = wsCustomer.Cells[11, 3].StyleID;
+                        int styleD = wsCustomer.Cells[11, 4].StyleID;
+                        int styleE = wsCustomer.Cells[11, 5].StyleID;
+                        int styleF = wsCustomer.Cells[11, 6].StyleID;
+                        int styleG = wsCustomer.Cells[11, 7].StyleID;
+                        double rowHeight = wsCustomer.Row(11).Height;
 
                         for (int r = nextSectionRow; r < nextSectionRow + extraRows; r++)
                         {
-                            ws.Row(r).Height = rowHeight;
-                            ws.Cells[r, 1].StyleID = styleA;
-                            ws.Cells[r, 2].StyleID = styleB;
-                            ws.Cells[r, 3].StyleID = styleC;
-                            ws.Cells[r, 4].StyleID = styleD;
-                            ws.Cells[r, 5].StyleID = styleE;
-                            ws.Cells[r, 6].StyleID = styleF;
-                            ws.Cells[r, 7].StyleID = styleG;
+                            wsCustomer.Row(r).Height = rowHeight;
+                            wsCustomer.Cells[r, 1].StyleID = styleA;
+                            wsCustomer.Cells[r, 2].StyleID = styleB;
+                            wsCustomer.Cells[r, 3].StyleID = styleC;
+                            wsCustomer.Cells[r, 4].StyleID = styleD;
+                            wsCustomer.Cells[r, 5].StyleID = styleE;
+                            wsCustomer.Cells[r, 6].StyleID = styleF;
+                            wsCustomer.Cells[r, 7].StyleID = styleG;
 
-                            // Maintain merges (C:D) and (F:G)
-                            ws.Cells[r, 3, r, 4].Merge = true;
-                            ws.Cells[r, 6, r, 7].Merge = true;
+                            wsCustomer.Cells[r, 3, r, 4].Merge = true;
+                            wsCustomer.Cells[r, 6, r, 7].Merge = true;
                         }
                     }
 
-                    int row = itemsStartRow;
-                    int index = 1;
+                    int row = startRow;
                     foreach (var item in reserves)
                     {
-                        ws.Cells[row, 1].Value = index;        // ردیف
-                        ws.Cells[row, 2].Value = item.FoodCode; // کد کالا
-                        ws.Cells[row, 3].Value = item.FoodTitle;// نام کالا
-                        ws.Cells[row, 5].Value = item.Quantity; // تعداد
-                        ws.Cells[row, 6].Value = string.Empty;  // توضیحات
+                        wsCustomer.Cells[row, 1].Value = row - startRow + 1;      // index
+                        wsCustomer.Cells[row, 2].Value = item.FoodCode;
+                        wsCustomer.Cells[row, 3].Value = item.FoodTitle;
+                        wsCustomer.Cells[row, 5].Value = item.Quantity;
+                        wsCustomer.Cells[row, 6].Value = string.Empty;
                         row++;
-                        index++;
                     }
 
-                    // Advance currentRow to after this block, plus one empty row as separator
-                    int extraRowsCount = reserves.Count > templateRowCount ? (reserves.Count - templateRowCount) : 0;
-                    int blockBottomRow = blockStartRow + 10 + extraRowsCount; // end of block after any inserted rows
-                    currentRow = blockBottomRow + 2; // one blank row separator
+                    // Document code into header
+                    wsCustomer.Cells["G1"].Value = $"کد سند: SP-F-ST-010-00";
+
+                    // Append this customer's sheet to the result as a block
+                    if (wsCustomer.Dimension != null)
+                    {
+                        var source = wsCustomer.Cells[wsCustomer.Dimension.Address];
+                        var destination = wsResult.Cells[currentRow, 1];
+                        source.Copy(destination);
+                        currentRow += wsCustomer.Dimension.Rows + 1; // blank separator row
+                    }
                 }
 
                 // --- Create Recipt record for this combined file ---
@@ -377,10 +367,7 @@ namespace Narije.Infrastructure.Repositories
                 _NarijeDBContext.Recipt.Update(recipt);
                 await _NarijeDBContext.SaveChangesAsync();
 
-                // Remove the template worksheet to leave only the result
-                package.Workbook.Worksheets.Delete(wsTemplate);
-
-                var excelBytes = package.GetAsByteArray();
+                var excelBytes = finalPackage.GetAsByteArray();
 
                 // Save file
                 var basePath = "/data/recipts";
