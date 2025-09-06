@@ -131,11 +131,11 @@ namespace Narije.Api.Controllers.Admin
         [MapToApiVersion("2")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> ExportPdfRecipt(int? customerId, DateTime date)
+        public async Task<IActionResult> ExportPdfRecipt(string customerIds, DateTime date, bool all = false)
         {
             try
             {
-                var fileResult = await _IRecipts.ExportPdfRecipt(customerId: customerId, date: date);
+                var fileResult = await _IRecipts.ExportPdfRecipt(customerIds: customerIds, date: date, all: all);
                 return fileResult;
             }
             catch (Exception ex)
