@@ -321,6 +321,8 @@ namespace Narije.Infrastructure.Repositories
                         wsCustomer.Cells[row, 3].Value = item.FoodTitle;
                         wsCustomer.Cells[row, 5].Value = item.Quantity;
                         wsCustomer.Cells[row, 6].Value = string.Empty;
+                        wsCustomer.Cells[row, 6].Style.Font.Bold = true;
+                        wsCustomer.Cells[row, 7].Style.Font.Bold = true; // cover merged F:G
                         row++;
                     }
 
@@ -330,12 +332,13 @@ namespace Narije.Infrastructure.Repositories
                     // Append this customer's sheet to the result as a block (styles, merges preserved)
                     if (wsCustomer.Dimension != null)
                     {
-                        var source = wsCustomer.Cells[wsCustomer.Dimension.Address];
+                        int maxRow = wsCustomer.Dimension.End.Row;
+                        var source = wsCustomer.Cells[1, 1, maxRow, 7]; // copy only A..G
                         var destination = wsResult.Cells[currentRow, 1];
                         source.Copy(destination);
 
                         // Copy row heights explicitly to match template
-                        int rows = wsCustomer.Dimension.Rows;
+                        int rows = maxRow;
                         for (int i = 0; i < rows; i++)
                         {
                             double h = wsCustomer.Row(i + 1).Height;
@@ -344,21 +347,22 @@ namespace Narije.Infrastructure.Repositories
                         }
 
                         // Copy merged regions from the source sheet into the destination at the correct offset
-                        int rowOffset = currentRow - wsCustomer.Dimension.Start.Row;
-                        int colOffset = 1 - wsCustomer.Dimension.Start.Column;
+                        int rowOffset = currentRow - 1;
+                        int colOffset = 0;
                         foreach (var mergedAddress in wsCustomer.MergedCells)
                         {
                             if (string.IsNullOrWhiteSpace(mergedAddress))
                                 continue;
                             var addr = new OfficeOpenXml.ExcelAddressBase(mergedAddress);
+                            if (addr.Start.Column > 7) continue; // skip merges beyond G
                             int nsr = addr.Start.Row + rowOffset;
                             int nsc = addr.Start.Column + colOffset;
                             int ner = addr.End.Row + rowOffset;
-                            int nec = addr.End.Column + colOffset;
+                            int nec = Math.Min(addr.End.Column + colOffset, 7);
                             wsResult.Cells[nsr, nsc, ner, nec].Merge = true;
                         }
 
-                        currentRow += wsCustomer.Dimension.Rows + 1; // blank separator row
+                        currentRow += rows + 1; // blank separator row
                     }
 
                     generatedSheetNames.Add(wsCustomer.Name);
@@ -544,6 +548,8 @@ namespace Narije.Infrastructure.Repositories
                     ws.Cells[row, 3].Value = item.FoodTitle;
                     ws.Cells[row, 5].Value = item.Quantity;
                     ws.Cells[row, 6].Value = string.Empty;
+                    ws.Cells[row, 6].Style.Font.Bold = true;
+                    ws.Cells[row, 7].Style.Font.Bold = true;
                     row++;
                 }
 
