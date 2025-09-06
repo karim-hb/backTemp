@@ -179,16 +179,25 @@ namespace Narije.Infrastructure.Repositories
             {
                 string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/templates/ReciptTemplate.xlsx");
                 using var package = new ExcelPackage(new FileInfo(templatePath));
-                var ws = package.Workbook.Worksheets[0];
+                var wsTemplate = package.Workbook.Worksheets[0];
+                var ws = package.Workbook.Worksheets.Add("Result");
+
+                // Match column widths with the template
+                for (int col = 1; col <= 7; col++)
+                {
+                    ws.Column(col).Width = wsTemplate.Column(col).Width;
+                }
 
                 // --- Parse customerIds string ---
                 List<int> customerIdList = new List<int>();
                 if (!string.IsNullOrWhiteSpace(customerIds) && !all)
                 {
-                    customerIdList = customerIds
-                        .Split(",", StringSplitOptions.RemoveEmptyEntries)
-                        .Select(id => int.Parse(id.Trim()))
-                        .ToList();
+                    foreach (var idStr in customerIds.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        var trimmed = idStr.Trim();
+                        if (int.TryParse(trimmed, out var id))
+                            customerIdList.Add(id);
+                    }
                 }
 
                 // --- Determine customers to include ---
@@ -203,13 +212,17 @@ namespace Narije.Infrastructure.Repositories
 
                     customers = await _NarijeDBContext.Customers
                         .Where(c => customerIdsForDay.Contains(c.Id))
+                        .OrderBy(c => c.Title)
                         .ToListAsync();
                 }
                 else
                 {
-                    customers = await _NarijeDBContext.Customers
+                    var customersQuery = await _NarijeDBContext.Customers
                         .Where(c => customerIdList.Contains(c.Id))
                         .ToListAsync();
+                    // Preserve the order provided by the user
+                    var map = customersQuery.ToDictionary(c => c.Id, c => c);
+                    customers = customerIdList.Where(id => map.ContainsKey(id)).Select(id => map[id]).ToList();
                 }
 
                 var persianCalendar = new PersianCalendar();
@@ -218,10 +231,15 @@ namespace Narije.Infrastructure.Repositories
                     persianCalendar.GetMonth(date),
                     persianCalendar.GetDayOfMonth(date));
 
-                int currentRow = 1; // start writing rows
+                int currentRow = 1; // start writing rows (1-based)
 
                 foreach (var customer in customers)
                 {
+                    // Copy the whole template block (A1:G11) for each customer to preserve UI
+                    var templateStartRow = 1;
+                    var templateEndRow = 11; // inclusive
+                    wsTemplate.Cells[templateStartRow, 1, templateEndRow, 7].Copy(ws.Cells[currentRow, 1]);
+
                     // Fetch parent title if exists
                     string parentTitle = null;
                     if (customer?.ParentId.HasValue == true)
@@ -236,10 +254,14 @@ namespace Narije.Infrastructure.Repositories
                         ? customer.Title
                         : $"{customer.Title} - {parentTitle}");
 
-                    // Header for this customer
-                    ws.Cells[currentRow, 1].Value = $"مشتری: {customerFullTitle}";
-                    ws.Cells[currentRow, 7].Value = shamsiDate;
-                    currentRow += 2;
+                    // Fill header cells relative to the copied block
+                    ws.Cells[currentRow + 0, 7].Value = $"کد سند: SP-F-ST-010-00"; // G1
+                    ws.Cells[currentRow + 1, 2].Value = customerFullTitle;        // B2
+                    ws.Cells[currentRow + 1, 4].Value = customer?.DeliverFullName ?? string.Empty; // D2
+                    ws.Cells[currentRow + 1, 7].Value = customer?.Address ?? string.Empty;         // G2
+                    ws.Cells[currentRow + 2, 2].Value = customer?.Code ?? string.Empty;            // B3
+                    ws.Cells[currentRow + 2, 4].Value = customer?.DeliverPhoneNumber ?? string.Empty; // D3
+                    ws.Cells[currentRow + 2, 7].Value = shamsiDate;                                 // G3
 
                     // Query reserves
                     var reserveRecords = await _NarijeDBContext.vReserves
@@ -258,20 +280,70 @@ namespace Narije.Infrastructure.Repositories
                         .OrderBy(x => x.FoodTitle)
                         .ToList();
 
-                    int startRow = currentRow;
-
-                    foreach (var item in reserves)
+                    // Ensure merges for the 6 template item rows exist in this copied block
+                    for (int r = 0; r < 6; r++)
                     {
-                        ws.Cells[currentRow, 1].Value = currentRow - startRow + 1; // ردیف
-                        ws.Cells[currentRow, 2].Value = item.FoodCode;
-                        ws.Cells[currentRow, 3].Value = item.FoodTitle;
-                        ws.Cells[currentRow, 5].Value = item.Quantity;
-                        ws.Cells[currentRow, 6].Value = string.Empty;
-                        currentRow++;
+                        int rr = currentRow + 5 + r; // rows 6..11 of the block
+                        ws.Cells[rr, 3, rr, 4].Merge = true;
+                        ws.Cells[rr, 6, rr, 7].Merge = true;
                     }
 
-                    // Empty row spacing
-                    currentRow++;
+                    // Write items within the copied template block
+                    int blockStartRow = currentRow;        // top of the copied template block
+                    int itemsStartRow = blockStartRow + 5; // template's original row 6
+                    int templateRowCount = 6;              // rows 6..11
+                    int nextSectionRow = blockStartRow + 11; // row after items block
+
+                    if (reserves.Count > templateRowCount)
+                    {
+                        int extraRows = reserves.Count - templateRowCount;
+                        ws.InsertRow(nextSectionRow, extraRows);
+
+                        // Copy styles from the last template item row within this block
+                        int styleRow = blockStartRow + 10; // original row 11
+                        int styleA = ws.Cells[styleRow, 1].StyleID;
+                        int styleB = ws.Cells[styleRow, 2].StyleID;
+                        int styleC = ws.Cells[styleRow, 3].StyleID;
+                        int styleD = ws.Cells[styleRow, 4].StyleID;
+                        int styleE = ws.Cells[styleRow, 5].StyleID;
+                        int styleF = ws.Cells[styleRow, 6].StyleID;
+                        int styleG = ws.Cells[styleRow, 7].StyleID;
+                        double rowHeight = ws.Row(styleRow).Height;
+
+                        for (int r = nextSectionRow; r < nextSectionRow + extraRows; r++)
+                        {
+                            ws.Row(r).Height = rowHeight;
+                            ws.Cells[r, 1].StyleID = styleA;
+                            ws.Cells[r, 2].StyleID = styleB;
+                            ws.Cells[r, 3].StyleID = styleC;
+                            ws.Cells[r, 4].StyleID = styleD;
+                            ws.Cells[r, 5].StyleID = styleE;
+                            ws.Cells[r, 6].StyleID = styleF;
+                            ws.Cells[r, 7].StyleID = styleG;
+
+                            // Maintain merges (C:D) and (F:G)
+                            ws.Cells[r, 3, r, 4].Merge = true;
+                            ws.Cells[r, 6, r, 7].Merge = true;
+                        }
+                    }
+
+                    int row = itemsStartRow;
+                    int index = 1;
+                    foreach (var item in reserves)
+                    {
+                        ws.Cells[row, 1].Value = index;        // ردیف
+                        ws.Cells[row, 2].Value = item.FoodCode; // کد کالا
+                        ws.Cells[row, 3].Value = item.FoodTitle;// نام کالا
+                        ws.Cells[row, 5].Value = item.Quantity; // تعداد
+                        ws.Cells[row, 6].Value = string.Empty;  // توضیحات
+                        row++;
+                        index++;
+                    }
+
+                    // Advance currentRow to after this block, plus one empty row as separator
+                    int extraRowsCount = reserves.Count > templateRowCount ? (reserves.Count - templateRowCount) : 0;
+                    int blockBottomRow = blockStartRow + 10 + extraRowsCount; // end of block after any inserted rows
+                    currentRow = blockBottomRow + 2; // one blank row separator
                 }
 
                 // --- Create Recipt record for this combined file ---
@@ -305,8 +377,8 @@ namespace Narije.Infrastructure.Repositories
                 _NarijeDBContext.Recipt.Update(recipt);
                 await _NarijeDBContext.SaveChangesAsync();
 
-                // Document code
-                ws.Cells["G1"].Value = $"کد سند: SP-F-ST-010-00";
+                // Remove the template worksheet to leave only the result
+                package.Workbook.Worksheets.Delete(wsTemplate);
 
                 var excelBytes = package.GetAsByteArray();
 

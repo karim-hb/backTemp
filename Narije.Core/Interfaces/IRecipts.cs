@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Narije.Core.DTOs.Public;
 using Narije.Core.DTOs.ViewModels.Search;
 using System;
@@ -13,7 +13,8 @@ namespace Narije.Core.Interfaces
     {
 
         Task<ApiResponse> GetAllAsync(int? page, int? limit);
-        Task<FileContentResult> ExportRecipt(int? customerId, DateTime date);
+        Task<ApiResponse> ActiveReserve(string customerIds, DateTime date);
+        Task<FileContentResult> ExportRecipt(string customerIds, DateTime date, bool all = false);
         Task<FileContentResult> ExportPdfRecipt(int? customerId, DateTime date);
 
         Task<ApiResponse> ExportAsync();
