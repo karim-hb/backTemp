@@ -691,6 +691,22 @@ namespace Narije.Infrastructure.Repositories
                 }
                 package.Workbook.Worksheets.Delete(wsTemplate);
 
+                // Configure print settings for A4 landscape and fit-to-width on Result sheet
+                int lastRow = Math.Max(1, currentRow - 1);
+                wsResult.PrinterSettings.PaperSize = OfficeOpenXml.ePaperSize.A4;
+                wsResult.PrinterSettings.Orientation = OfficeOpenXml.eOrientation.Landscape;
+                wsResult.PrinterSettings.FitToPage = true;
+                wsResult.PrinterSettings.FitToWidth = 1;
+                wsResult.PrinterSettings.FitToHeight = 0;
+                wsResult.PrinterSettings.HorizontalCentered = true;
+                wsResult.PrinterSettings.LeftMargin = wsTemplate.PrinterSettings.LeftMargin;
+                wsResult.PrinterSettings.RightMargin = wsTemplate.PrinterSettings.RightMargin;
+                wsResult.PrinterSettings.TopMargin = wsTemplate.PrinterSettings.TopMargin;
+                wsResult.PrinterSettings.BottomMargin = wsTemplate.PrinterSettings.BottomMargin;
+                wsResult.PrinterSettings.HeaderMargin = wsTemplate.PrinterSettings.HeaderMargin;
+                wsResult.PrinterSettings.FooterMargin = wsTemplate.PrinterSettings.FooterMargin;
+                wsResult.PrinterSettings.PrintArea = wsResult.Cells[1, 1, lastRow, 7];
+
                 var basePath = "/data/recipts";
                 Directory.CreateDirectory(basePath);
                 tempXlsxPath = Path.Combine(basePath, $"{recipt.FileName}.xlsx");
