@@ -321,8 +321,14 @@ namespace Narije.Infrastructure.Repositories
                         wsCustomer.Cells[row, 3].Value = item.FoodTitle;
                         wsCustomer.Cells[row, 5].Value = item.Quantity;
                         wsCustomer.Cells[row, 6].Value = string.Empty;
+
+                        // Make A..E bold
+                        wsCustomer.Cells[row, 1, row, 5].Style.Font.Bold = true;
+
+                        // Make F..G bold and clear gray fill
                         wsCustomer.Cells[row, 6].Style.Font.Bold = true;
-                        wsCustomer.Cells[row, 7].Style.Font.Bold = true; // cover merged F:G
+                        wsCustomer.Cells[row, 7].Style.Font.Bold = true; // merged cell coverage
+                        wsCustomer.Cells[row, 6, row, 7].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.None;
                         row++;
                     }
 
@@ -548,8 +554,14 @@ namespace Narije.Infrastructure.Repositories
                     ws.Cells[row, 3].Value = item.FoodTitle;
                     ws.Cells[row, 5].Value = item.Quantity;
                     ws.Cells[row, 6].Value = string.Empty;
+
+                    // Make A..E bold
+                    ws.Cells[row, 1, row, 5].Style.Font.Bold = true;
+
+                    // Make F..G bold and clear gray fill
                     ws.Cells[row, 6].Style.Font.Bold = true;
                     ws.Cells[row, 7].Style.Font.Bold = true;
+                    ws.Cells[row, 6, row, 7].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.None;
                     row++;
                 }
 
