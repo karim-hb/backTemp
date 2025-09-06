@@ -178,16 +178,16 @@ namespace Narije.Infrastructure.Repositories
             try
             {
                 string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/templates/ReciptTemplate.xlsx");
-                using var templatePackage = new ExcelPackage(new FileInfo(templatePath));
-                var wsTemplate = templatePackage.Workbook.Worksheets[0];
-                using var finalPackage = new ExcelPackage();
-                var wsResult = finalPackage.Workbook.Worksheets.Add("Result");
+                using var package = new ExcelPackage(new FileInfo(templatePath));
+                var wsTemplate = package.Workbook.Worksheets[0];
+                var wsResult = package.Workbook.Worksheets.Add("Result");
 
-                // Match column widths with the template on the result sheet
+                // Match column widths and sheet view with the template on the result sheet
                 for (int col = 1; col <= 7; col++)
                 {
                     wsResult.Column(col).Width = wsTemplate.Column(col).Width;
                 }
+                wsResult.View.RightToLeft = wsTemplate.View.RightToLeft;
 
                 // --- Parse customerIds string ---
                 List<int> customerIdList = new List<int>();
@@ -233,11 +233,12 @@ namespace Narije.Infrastructure.Repositories
                     persianCalendar.GetDayOfMonth(date));
 
                 int currentRow = 1; // start writing rows (1-based)
+                var generatedSheetNames = new List<string>();
 
                 foreach (var customer in customers)
                 {
-                    using var customerPackage = new ExcelPackage(new FileInfo(templatePath));
-                    var wsCustomer = customerPackage.Workbook.Worksheets[0];
+                    // Clone template within the same package to preserve styles
+                    var wsCustomer = package.Workbook.Worksheets.Add($"C_{customer.Id}", wsTemplate);
 
                     // Fetch parent title if exists
                     string parentTitle = null;
@@ -326,14 +327,41 @@ namespace Narije.Infrastructure.Repositories
                     // Document code into header
                     wsCustomer.Cells["G1"].Value = $"کد سند: SP-F-ST-010-00";
 
-                    // Append this customer's sheet to the result as a block
+                    // Append this customer's sheet to the result as a block (styles, merges preserved)
                     if (wsCustomer.Dimension != null)
                     {
                         var source = wsCustomer.Cells[wsCustomer.Dimension.Address];
                         var destination = wsResult.Cells[currentRow, 1];
                         source.Copy(destination);
+
+                        // Copy row heights explicitly to match template
+                        int rows = wsCustomer.Dimension.Rows;
+                        for (int i = 0; i < rows; i++)
+                        {
+                            double h = wsCustomer.Row(i + 1).Height;
+                            if (h > 0)
+                                wsResult.Row(currentRow + i).Height = h;
+                        }
+
+                        // Copy merged regions from the source sheet into the destination at the correct offset
+                        int rowOffset = currentRow - wsCustomer.Dimension.Start.Row;
+                        int colOffset = 1 - wsCustomer.Dimension.Start.Column;
+                        foreach (var mergedAddress in wsCustomer.MergedCells)
+                        {
+                            if (string.IsNullOrWhiteSpace(mergedAddress))
+                                continue;
+                            var addr = new OfficeOpenXml.ExcelAddressBase(mergedAddress);
+                            int nsr = addr.Start.Row + rowOffset;
+                            int nsc = addr.Start.Column + colOffset;
+                            int ner = addr.End.Row + rowOffset;
+                            int nec = addr.End.Column + colOffset;
+                            wsResult.Cells[nsr, nsc, ner, nec].Merge = true;
+                        }
+
                         currentRow += wsCustomer.Dimension.Rows + 1; // blank separator row
                     }
+
+                    generatedSheetNames.Add(wsCustomer.Name);
                 }
 
                 // --- Create Recipt record for this combined file ---
@@ -367,7 +395,15 @@ namespace Narije.Infrastructure.Repositories
                 _NarijeDBContext.Recipt.Update(recipt);
                 await _NarijeDBContext.SaveChangesAsync();
 
-                var excelBytes = finalPackage.GetAsByteArray();
+                // Remove intermediate sheets and the template, keep only Result
+                foreach (var name in generatedSheetNames)
+                {
+                    var s = package.Workbook.Worksheets[name];
+                    if (s != null) package.Workbook.Worksheets.Delete(s);
+                }
+                package.Workbook.Worksheets.Delete(wsTemplate);
+
+                var excelBytes = package.GetAsByteArray();
 
                 // Save file
                 var basePath = "/data/recipts";
