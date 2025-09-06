@@ -694,9 +694,10 @@ namespace Narije.Infrastructure.Repositories
                 // Configure print settings for A4 landscape and 80% scale on Result sheet
                 int lastRow = Math.Max(1, currentRow - 1);
                 wsResult.PrinterSettings.PaperSize = OfficeOpenXml.ePaperSize.A4;
-                wsResult.PrinterSettings.Orientation = OfficeOpenXml.eOrientation.Landscape;
-                wsResult.PrinterSettings.FitToPage = false; // use explicit scale
-                wsResult.PrinterSettings.Scale = 80;        // 80% zoom out
+                wsResult.PrinterSettings.Orientation = OfficeOpenXml.eOrientation.Portrait;
+                wsResult.PrinterSettings.FitToPage = true;
+                wsResult.PrinterSettings.FitToWidth = 1;
+                wsResult.PrinterSettings.FitToHeight = 1;
                 wsResult.PrinterSettings.HorizontalCentered = true;
                 wsResult.PrinterSettings.LeftMargin = wsTemplate.PrinterSettings.LeftMargin;
                 wsResult.PrinterSettings.RightMargin = wsTemplate.PrinterSettings.RightMargin;
