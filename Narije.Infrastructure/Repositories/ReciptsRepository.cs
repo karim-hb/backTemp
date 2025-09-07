@@ -623,6 +623,10 @@ namespace Narije.Infrastructure.Repositories
                         int maxRow = ws.Dimension.End.Row;
                         var source = ws.Cells[1, 1, maxRow, 7];
                         var destination = wsResult.Cells[currentRow, 1];
+                        if (currentRow > 1)
+                        {
+                            wsResult.Row(currentRow).PageBreak = true;
+                        }
                         source.Copy(destination);
 
                         // Copy row heights and merges within A..G
@@ -690,13 +694,13 @@ namespace Narije.Infrastructure.Repositories
                 }
                 package.Workbook.Worksheets.Delete(wsTemplate);
 
-                // Configure print settings for A4 landscape and 80% scale on Result sheet
+                // Configure print settings for A4 portrait and fit-to-width on Result sheet
                 int lastRow = Math.Max(1, currentRow - 1);
                 wsResult.PrinterSettings.PaperSize = OfficeOpenXml.ePaperSize.A4;
                 wsResult.PrinterSettings.Orientation = OfficeOpenXml.eOrientation.Portrait;
                 wsResult.PrinterSettings.FitToPage = true;
                 wsResult.PrinterSettings.FitToWidth = 1;
-                wsResult.PrinterSettings.FitToHeight = 1;
+                wsResult.PrinterSettings.FitToHeight = 0;
                 wsResult.PrinterSettings.HorizontalCentered = true;
                 wsResult.PrinterSettings.LeftMargin = wsTemplate.PrinterSettings.LeftMargin;
                 wsResult.PrinterSettings.RightMargin = wsTemplate.PrinterSettings.RightMargin;
